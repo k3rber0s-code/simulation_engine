@@ -22,16 +22,29 @@ namespace Xion {
      *    have a list od all particle ids involved in it.
      *  - (3) is just for storing (4) and (5) together
      */
+    typedef std::map<std::string, std::pair<std::map<int, Particle>, std::vector<int>>> ParticleMap;
 
-    typedef std::map<int, std::pair<std::map<std::string, Particle>, std::vector<int>>> ParticleMap;
+    /*
+     * Type definition for storing Interaction ids and Particle ids of Particles involved in the interaction.
+     */
+    typedef std::map<int, std::vector<int>> InteractionMap;
+
+    /*
+     * Type definition for fast lookup of information regarding different particle types.
+     */
+    typedef std::map<std::string, Xion::ParticleType> ParticleTypeInfo;
 
     class System {
     public:
         int generateID() { return nextID++;}
-
+        void addParticle(std::string ptype_id);
         System();
     private:
+        ParticleTypeInfo PTypeInfo;
         ParticleMap Particles;
+        InteractionMap Interactions;
+
+        double energy = 0;
         int nextID;
     };
 

@@ -21,6 +21,9 @@ int main() {
     std::cout << i1.use_count();
 
     Xion::System s;
+    s.addParticle("Ar");
+    s.addParticle("Ar");
+
     std::cout << s.generateID() << " " << s.generateID();
 
     return 0;

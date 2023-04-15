@@ -2,6 +2,7 @@
 // Created by ema on 14.4.23.
 //
 
+#include <iostream>
 #include "Particle.h"
 #include "Random.h"
 #include "Interaction.h"
@@ -17,21 +18,24 @@ namespace Xion {
         coordinates = Coordinates();
     }
 
-    void Particle::addInteraction(std::shared_ptr<Interaction> i) {
-        interactions.push_back(i);
-//        switch (i_type) {
-//            case InteractionType::lennard_jones:
-//                break;
-//            case InteractionType::electrostatic:
-//                break;
-//            default:
-//                break;
-//
-//        }
+    Particle::Particle(int _id) {
+        coordinates = Coordinates();
+        id = _id;
     }
 
     ChainedParticle::ChainedParticle() {
         previous = nullptr;
         next = nullptr;
+    }
+
+    void Particle::addInteraction(std::shared_ptr<Interaction> i) {
+        interactions.push_back(i);
+    }
+
+    void Particle::printPosition() {
+        std::cout << coordinates.x
+        << " " << coordinates.y
+        << " " << coordinates.z
+        << std::endl;
     }
 } // Xion

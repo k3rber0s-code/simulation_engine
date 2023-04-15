@@ -12,6 +12,7 @@ namespace Xion {
 
     class Interaction {
     public:
+        int id;
         double getPotential() const { return potential; };
     protected:
         double potential;
