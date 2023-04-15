@@ -16,4 +16,13 @@ namespace Xion {
 
         // TODO: add interactions
     }
+
+    Particle *System::getParticleByID(int p_id) {
+        for (auto& [p_type, data] : Particles) {
+            auto it = data.first.find(p_id);
+            if (it != data.first.end()) {
+                return &it->second;
+            }
+        }
+    }
 } // Xion

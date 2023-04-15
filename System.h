@@ -38,6 +38,7 @@ namespace Xion {
     public:
         int generateID() { return nextID++;}
         void addParticle(std::string ptype_id);
+        Particle* getParticleByID(int p_id);
         System();
     private:
         ParticleTypeInfo PTypeInfo;

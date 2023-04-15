@@ -18,11 +18,12 @@ int main() {
 
     p1.addInteraction(i1);
     p2.addInteraction(i1);
-    std::cout << i1.use_count();
 
     Xion::System s;
     s.addParticle("Ar");
     s.addParticle("Ar");
+
+    s.getParticleByID(1)->printPosition();
 
     std::cout << s.generateID() << " " << s.generateID();
 
