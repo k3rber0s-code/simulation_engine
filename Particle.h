@@ -8,10 +8,6 @@
 
 namespace Xion {
     class Interaction;
-    enum class InteractionType {
-        lennard_jones,
-        electrostatic
-    };
     struct Coordinates {
         double x;
         double y;
@@ -49,7 +45,7 @@ namespace Xion {
     class ChainedParticle : Particle {
     public:
         ChainedParticle();
-        using Particle::addInteraction;//(std::shared_ptr<Interaction> i);
+        using Particle::addInteraction;
     private:
         Particle* previous;
         Particle* next;

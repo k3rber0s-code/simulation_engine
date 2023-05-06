@@ -3,6 +3,7 @@
 //
 #include <map>
 #include <vector>
+#include <iostream>
 #include "Particle.h"
 #include "Interaction.h"
 
@@ -10,43 +11,60 @@
 #define ENGINE_SYSTEM_H
 
 namespace Xion {
-    /* Type definition for System.Particles:
-     * (1)map<(2)"particle_type_id", (3)pair<(4)map<"particle_id", particle>, (5)vector<"particle_ids">>>
-     *
-     * Explanation:
-     * We need to do following things:
-     *  - access a particle of certain type in O(1) -> (1) and (2) for looking up all particles of certain type
-     *  - access a RANDOM particles -> that's why we store (5), all particle ids of certain type. we choose random element
-     *    from this vector in O(1) and use it to lookup the particle in (4) in O(1)
-     *  - access a particle with SPECIFIC PARTICLE ID -> this is needed when we need to manipulate an interaction and we
-     *    have a list od all particle ids involved in it.
-     *  - (3) is just for storing (4) and (5) together
+    /*
+     * PTypeID: ID of particle types (e.g. Hydrogen: "H", Polar amino acid: "P", Non-polar amino acid: "NP")
+     * PID: ID of specific particle
+     * IID: ID of specific interaction
      */
-    typedef std::map<std::string, std::pair<std::map<int, Particle>, std::vector<int>>> ParticleMap;
+    typedef std::string PTypeID;
+    typedef int PID;
+    typedef int IID;
 
     /*
-     * Type definition for storing Interaction ids and Particle ids of Particles involved in the interaction.
+     * ParticleMap: storage of particles accessible by their IDs in O(1)
+     * ParticlesByType: storage of particle IDs by particle type - for randomly choosing a particle of certain type in O(1)
+     * InteractionMap: for each interaction denoted by its IID, it stores info about participating particles (PIDs)
      */
-    typedef std::map<int, std::vector<int>> InteractionMap;
+    typedef std::map<PID, Particle> ParticleMap;
+    typedef std::map<PTypeID, std::vector<PID>> ParticlesByType;
+    typedef std::map<IID, std::vector<PID>> InteractionMap;
 
     /*
      * Type definition for fast lookup of information regarding different particle types.
      */
-    typedef std::map<std::string, Xion::ParticleType> ParticleTypeInfo;
+    typedef std::map<PTypeID , Xion::ParticleType> ParticleTypeInfo;
 
     class System {
     public:
-        int generateID() { return nextID++;}
-        void addParticle(std::string ptype_id);
-        Particle* getParticleByID(int p_id);
-        System();
+        void addParticle(PTypeID);
+        void deleteParticle(PID);
+        void changePType(PID);
+        void addInteraction(PID, PID, PTypeID&, PTypeID&, InteractionType);
+        void deleteInteraction(IID);
+
+        Particle* getRandomParticle(PTypeID);
+        Particle* getParticleByID(PID);
+        System() : nextPID(0), nextIID(0) {};
+        ParticleTypeInfo PTypes;
     private:
-        ParticleTypeInfo PTypeInfo;
+        // PARTICLES
         ParticleMap Particles;
+        ParticlesByType PByType;
+
+        // INTERACTIONS
         InteractionMap Interactions;
 
+        // OBSERVABLES
         double energy = 0;
-        int nextID;
+
+        // ID HANDLER
+        int generatePID() { return nextPID++;}
+        int generateIID() { return nextIID++;}
+        int nextPID;
+        int nextIID;
+
+
+        double getDistance(const PID &id1, const PID &id2, bool root = false);
     };
 
 } // Xion

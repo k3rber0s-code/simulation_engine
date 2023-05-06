@@ -5,4 +5,5 @@
 #include "Interaction.h"
 
 namespace Xion {
+
 } // Xion
