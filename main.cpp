@@ -30,10 +30,10 @@ int main() {
         std::cout << std::endl;
     }
 
-    std::cout << "deleting particle 1." << std::endl;
-    s.deleteParticle(1, "H");
+    std::cout << "changing particle 1 from H to A." << std::endl;
+    s.changePType(1, "H", "A");
 
-    for (size_t i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < 5; ++i) {
         std::cout << "particle: " << i << std::endl;
         if (s.getParticleByID(i) != nullptr) {
             s.getParticleByID(i)->printPosition();
