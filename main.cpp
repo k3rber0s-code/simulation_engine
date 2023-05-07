@@ -11,8 +11,8 @@ int main() {
 
     Xion::System s;
 
-    auto ptype = Xion::ParticleType{"H", 1.0, 1.0, Xion::Charge::zero};
-    s.PTypes["H"] = ptype;
+    s.addPType("H", 1.0, 1.0, Xion::Charge::zero);
+
 
     for (size_t i = 0; i < 3; ++i) {
         s.addParticle("H");

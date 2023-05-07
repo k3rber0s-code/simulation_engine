@@ -126,5 +126,10 @@ namespace Xion {
 
     }
 
+    void System::addPType(PTypeID typeId, double sigma, double epsilon, Charge charge) {
+        auto ptype = Xion::ParticleType{typeId, sigma, epsilon, charge};
+        PTypes[typeId] = ptype;
+    }
+
 
 } // Xion

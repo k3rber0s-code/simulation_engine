@@ -38,6 +38,7 @@ namespace Xion {
 
     class System {
     public:
+        void addPType(PTypeID, double, double, Charge);
         void addParticle(PTypeID);
         void deleteParticle(PID, PTypeID);
         void changePType(PID);
@@ -47,9 +48,9 @@ namespace Xion {
         PID getRandomParticleID(const PTypeID&);
         Particle* getParticleByID(PID);
         System() : nextPID(0), nextIID(0) {};
-        ParticleTypeInfo PTypes;
     private:
         // PARTICLES
+        ParticleTypeInfo PTypes;
         ParticleMap Particles;
         ParticlesByType PByType;
 
