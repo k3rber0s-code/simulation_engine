@@ -6,8 +6,20 @@
 
 namespace Xion {
 
+    template<class T>
+    bool unstable_erase(
+            typename std::vector<T> &container,
+            typename std::vector<T>::iterator it
+    ) {
+        auto lastEl = container.end() - 1;
+        if (it != lastEl) {
+            *it = std::move(*lastEl);
+        }
+        container.pop_back();
+    }
+
     void System::addParticle(PTypeID ptype_id) {
-        double threshold = 2.5; // TODO: load thresholds for different types of interactions;
+        double threshold = 15; // TODO: load thresholds for different types of interactions;
         // Generate id and whole new particle
         int p_id = generatePID();
         Particles[p_id] = Particle(p_id);
@@ -19,17 +31,19 @@ namespace Xion {
                 if (p_id > p_id2) { // Assures that each interaction will be counted only once
                     auto d = getDistance(p_id, p_id2);
                     if (d < pow(threshold, 2)) {
-                        addInteraction(p_id, p_id2, ptype_id, const_cast<PTypeID &>(ptype_id2), InteractionType::lennard_jones); //TODO: cast
-                        std::cout << "distance: " << d << ": adding interaction between " << p_id << " " << p_id2 << std::endl;
+                        addInteraction(p_id, p_id2, ptype_id, const_cast<PTypeID &>(ptype_id2),
+                                       InteractionType::lennard_jones); //TODO: cast
+                        std::cout << "distance: " << d << ": adding interaction between " << p_id << " " << p_id2
+                                  << std::endl;
                     } else {
-                        std::cout << "distance: " << d << " too far." <<std::endl;
+                        std::cout << "distance: " << d << " too far." << std::endl;
                     }
                 }
             }
         }
     }
 
-    Particle *System::getParticleByID(int p_id) {
+    Particle *System::getParticleByID(PID p_id) {
         auto it = Particles.find(p_id);
         if (it != Particles.end()) {
             return &it->second;
@@ -56,7 +70,7 @@ namespace Xion {
 
             // Create the interaction and add it to particles
             IID i = generateIID();
-            std::cout << i  << std::endl;
+            std::cout << i << std::endl;
             auto i_shared = std::make_shared<LennardJonesPotential>(i, sigma, epsilon, sqrt(distance));
             Particles[p1].addInteraction(i_shared);
             Particles[p2].addInteraction(i_shared);
@@ -69,6 +83,46 @@ namespace Xion {
             energy += i_shared->getPotential();
             std::cout << "energy after: " << energy << std::endl;
         }
+
+    }
+
+    PID System::getRandomParticleID(const PTypeID &ptype_id) {
+        if (!PByType[ptype_id].empty()) {
+            int idx = Random::getRandomNumber<int>(0, PByType[ptype_id].size() - 1);
+            return PByType[ptype_id][idx];
+        } else return -1;
+    }
+
+    void System::deleteParticle(PID p_id, PTypeID p_type) {
+        // ERASE INTERACTIONS
+        auto& i_tbd = Particles[p_id].interactions;
+        if (!i_tbd.empty()) {
+            for (auto &i: i_tbd) {
+                energy -= i->getPotential();
+                // Get all other particles that interact with Particle <p_id> from interaction map
+                for (auto &&p_id2: Interactions[i->id]) {
+                    if (p_id != p_id2) {
+                        // Delete shared_ptr on this interaction
+                        auto it = std::find_if(Particles[p_id2].interactions.begin(),
+                                               Particles[p_id2].interactions.end(),
+                                               [&i](const std::shared_ptr<Interaction> &obj) {
+                                                   return obj->id == i->id;
+                                               });
+                        Particles[p_id2].interactions.erase(it);
+                    }
+                }
+                // Delete shared_ptr on this interaction in deleted particle, now the interaction ceases to exist
+//                Particles[p_id].interactions.erase(
+//                        std::find_if(Particles[p_id].interactions.begin(), Particles[p_id].interactions.end(),
+//                                     [&i](const std::shared_ptr<Interaction> &obj) { return obj->id == i->id; }));
+
+                // Delete the info about the interaction from interaction map
+                Interactions.erase(Interactions.find(i->id));
+            }
+        }
+        // ERASE THE PARTICLE ITSELF
+        PByType[p_type].erase(std::find(PByType[p_type].begin(), PByType[p_type].end(), p_id));
+        Particles.erase(Particles.find(p_id));
 
     }
 

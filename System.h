@@ -4,8 +4,10 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 #include "Particle.h"
 #include "Interaction.h"
+#include "Random.h"
 
 #ifndef ENGINE_SYSTEM_H
 #define ENGINE_SYSTEM_H
@@ -37,12 +39,12 @@ namespace Xion {
     class System {
     public:
         void addParticle(PTypeID);
-        void deleteParticle(PID);
+        void deleteParticle(PID, PTypeID);
         void changePType(PID);
         void addInteraction(PID, PID, PTypeID&, PTypeID&, InteractionType);
         void deleteInteraction(IID);
 
-        Particle* getRandomParticle(PTypeID);
+        PID getRandomParticleID(const PTypeID&);
         Particle* getParticleByID(PID);
         System() : nextPID(0), nextIID(0) {};
         ParticleTypeInfo PTypes;

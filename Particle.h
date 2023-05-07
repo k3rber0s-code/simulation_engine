@@ -38,8 +38,8 @@ namespace Xion {
         void addInteraction(std::shared_ptr<Interaction> i);
         Particle();
         explicit Particle(int _id);
-    protected:
         Interactions interactions;
+    protected:
         friend class System;
     };
     class ChainedParticle : Particle {
