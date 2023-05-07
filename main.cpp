@@ -11,7 +11,9 @@ int main() {
 
     Xion::System s;
 
-    s.addPType("H", 1.0, 1.0, Xion::Charge::zero);
+    s.addPType("H", 1.0, 1.0, Xion::Charge::positive);
+    s.addPType("A", 2.7, 4.92, Xion::Charge::negative);
+    s.addPType("HA", 2.7, 3.0, Xion::Charge::zero);
     for (size_t i = 0; i < 3; ++i) {
         s.addParticle("H");
     }

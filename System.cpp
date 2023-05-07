@@ -6,18 +6,25 @@
 
 namespace Xion {
 
+    /// Util method for fast unstable erase from vector. The deleted element is switched with the last element and the vector is then resized.
+    /// \tparam T
+    /// \param container
+    /// \param it
+    /// \return
     template<class T>
     bool unstable_erase(
             typename std::vector<T> &container,
             typename std::vector<T>::iterator it
     ) {
-        auto lastEl = container.end() - 1;
-        if (it != lastEl) {
-            *it = std::move(*lastEl);
+        auto lastElement = container.end() - 1;
+        if (it != lastElement) {
+            *it = std::move(*lastElement);
         }
         container.pop_back();
     }
 
+    /// Adds a particle of certain type to the system.
+    /// \param ptype_id type of the particle
     void System::addParticle(PTypeID ptype_id) {
         double threshold = 15; // TODO: load thresholds for different types of interactions;
         // Generate id and whole new particle
@@ -29,6 +36,10 @@ namespace Xion {
         addInteractions(ptype_id, p_id);
     }
 
+    /// Adds all possible interactions for a particle
+    /// \param ptype_id Type of the particle
+    /// \param p_id ID of the particle
+    /// \param threshold cutoff threshold for where potentials are no longer computed
     void System::addInteractions(PTypeID &ptype_id, int p_id, double threshold) {
         for (const auto &[ptype_id2, p_ids]: PByType) {
             for (auto &&p_id2: p_ids) {
@@ -47,6 +58,9 @@ namespace Xion {
         }
     }
 
+    /// Fetches a particle by id.
+    /// \param p_id ID of the particle
+    /// \return pointer on the particle or nullptr of not found
     Particle *System::getParticleByID(PID p_id) {
         auto it = Particles.find(p_id);
         if (it != Particles.end()) {
@@ -54,6 +68,11 @@ namespace Xion {
         } else return nullptr;
     }
 
+    /// Computes the distance between two particles
+    /// \param id1 particle 1
+    /// \param id2 particle 2
+    /// \param root flag for returning sqrt of the value
+    /// \return distance between particle 1 and particle 2
     double System::getDistance(const PID &id1, const PID &id2, bool root) {
         auto &p1 = Particles[id1].coordinates;
         auto &p2 = Particles[id2].coordinates;
@@ -64,6 +83,12 @@ namespace Xion {
 
     }
 
+    /// Creates a pairwise potential of certain type.
+    /// \param p1 PID of first particle
+    /// \param p2 PID of second particle
+    /// \param ptype1 type of first particle
+    /// \param ptype2 type of second particle
+    /// \param itype type of interaction to be created
     void System::addInteraction(PID p1, PID p2, PTypeID &ptype1, PTypeID &ptype2, InteractionType itype) {
         if (itype == InteractionType::lennard_jones) {
             std::cout << "adding lennard jones interaction. id: ";
@@ -89,7 +114,9 @@ namespace Xion {
         }
 
     }
-
+    /// Function for sampling a random particle of certain type.
+    /// \param ptype_id ID of the type of desired particle
+    /// \return ID of the particle in ParticlesByType[ptype_id] vector
     PID System::getRandomParticleID(const PTypeID &ptype_id) {
         if (!PByType[ptype_id].empty()) {
             int idx = Random::getRandomNumber<int>(0, PByType[ptype_id].size() - 1);
@@ -106,7 +133,9 @@ namespace Xion {
 
     }
 
-    void System::deleteInteractions(PID p_id) {// ERASE INTERACTIONS
+    /// Deletes all interactions regarding a particle denoted by PID. Used when deleting a particle or changing its type
+    /// \param p_id PID of the particle
+    void System::deleteInteractions(PID p_id) {
         auto& i_tbd = Particles[p_id].interactions;
         if (!i_tbd.empty()) {
             for (auto &i: i_tbd) {
@@ -128,7 +157,11 @@ namespace Xion {
             }
         }
     }
-
+    /// Stores information about a particle type in the system.
+    /// \param typeId string ID of the type
+    /// \param sigma radius
+    /// \param epsilon depth of potential well
+    /// \param charge charge
     void System::addPType(PTypeID typeId, double sigma, double epsilon, Charge charge) {
         auto ptype = Xion::ParticleType{typeId, sigma, epsilon, charge};
         PTypes[typeId] = ptype;
@@ -137,6 +170,8 @@ namespace Xion {
     void System::changePType(PID pid, PTypeID typeId_old, PTypeID typeId_new) {
         // Generate new ID
         PID new_pid = generatePID();
+        // Remove old interactions
+        deleteInteractions(pid);
         // Reassign it in the particle
         Particles[pid].id = new_pid;
         // Change Particles key
@@ -146,10 +181,9 @@ namespace Xion {
         // Change it in PByType
         unstable_erase(PByType[typeId_old], std::find(PByType[typeId_old].begin(), PByType[typeId_old].end(), pid));
         PByType[typeId_new].push_back(new_pid);
-        // Change it in Interactions
-        for (auto && interaction : Particles[new_pid].interactions) {
-            //unstable_erase(Interactions[interaction->id])
-        }
+        // Generate new interactions
+        addInteractions(typeId_new, new_pid);
+        // TODO: chain molecules
     }
 
 
