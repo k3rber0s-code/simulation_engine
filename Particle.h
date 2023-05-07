@@ -37,6 +37,7 @@ namespace Xion {
         void printPosition();
         void addInteraction(std::shared_ptr<Interaction> i);
         Particle();
+        Particle(Particle&, int);
         explicit Particle(int _id);
         Interactions interactions;
     protected:

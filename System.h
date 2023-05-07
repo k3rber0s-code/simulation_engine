@@ -41,9 +41,9 @@ namespace Xion {
         void addPType(PTypeID, double, double, Charge);
         void addParticle(PTypeID);
         void deleteParticle(PID, PTypeID);
-        void changePType(PID);
+        void changePType(PID, PTypeID, PTypeID);
         void addInteraction(PID, PID, PTypeID&, PTypeID&, InteractionType);
-        void deleteInteraction(IID);
+        //void deleteInteraction(IID);
 
         PID getRandomParticleID(const PTypeID&);
         Particle* getParticleByID(PID);
@@ -68,6 +68,10 @@ namespace Xion {
 
 
         double getDistance(const PID &id1, const PID &id2, bool root = false);
+
+        void deleteInteractions(PID p_id);
+
+        void addInteractions(PTypeID &ptype_id, PID p_id, double threshold = 15);
     };
 
 } // Xion

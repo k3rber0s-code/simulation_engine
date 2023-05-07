@@ -26,6 +26,10 @@ namespace Xion {
         PByType[ptype_id].push_back(p_id);
 
         // Add interactions
+        addInteractions(ptype_id, p_id);
+    }
+
+    void System::addInteractions(PTypeID &ptype_id, int p_id, double threshold) {
         for (const auto &[ptype_id2, p_ids]: PByType) {
             for (auto &&p_id2: p_ids) {
                 if (p_id > p_id2) { // Assures that each interaction will be counted only once
@@ -94,7 +98,15 @@ namespace Xion {
     }
 
     void System::deleteParticle(PID p_id, PTypeID p_type) {
-        // ERASE INTERACTIONS
+        // DELETE ALL INTERACTIONS
+        deleteInteractions(p_id);
+        // ERASE THE PARTICLE ITSELF
+        PByType[p_type].erase(std::find(PByType[p_type].begin(), PByType[p_type].end(), p_id));
+        Particles.erase(Particles.find(p_id));
+
+    }
+
+    void System::deleteInteractions(PID p_id) {// ERASE INTERACTIONS
         auto& i_tbd = Particles[p_id].interactions;
         if (!i_tbd.empty()) {
             for (auto &i: i_tbd) {
@@ -111,24 +123,33 @@ namespace Xion {
                         Particles[p_id2].interactions.erase(it);
                     }
                 }
-                // Delete shared_ptr on this interaction in deleted particle, now the interaction ceases to exist
-//                Particles[p_id].interactions.erase(
-//                        std::find_if(Particles[p_id].interactions.begin(), Particles[p_id].interactions.end(),
-//                                     [&i](const std::shared_ptr<Interaction> &obj) { return obj->id == i->id; }));
-
-                // Delete the info about the interaction from interaction map
+                // Delete info from interaction map
                 Interactions.erase(Interactions.find(i->id));
             }
         }
-        // ERASE THE PARTICLE ITSELF
-        PByType[p_type].erase(std::find(PByType[p_type].begin(), PByType[p_type].end(), p_id));
-        Particles.erase(Particles.find(p_id));
-
     }
 
     void System::addPType(PTypeID typeId, double sigma, double epsilon, Charge charge) {
         auto ptype = Xion::ParticleType{typeId, sigma, epsilon, charge};
         PTypes[typeId] = ptype;
+    }
+
+    void System::changePType(PID pid, PTypeID typeId_old, PTypeID typeId_new) {
+        // Generate new ID
+        PID new_pid = generatePID();
+        // Reassign it in the particle
+        Particles[pid].id = new_pid;
+        // Change Particles key
+        auto particleHandler = Particles.extract(pid);
+        particleHandler.key() = new_pid;
+        Particles.insert(std::move(particleHandler));
+        // Change it in PByType
+        unstable_erase(PByType[typeId_old], std::find(PByType[typeId_old].begin(), PByType[typeId_old].end(), pid));
+        PByType[typeId_new].push_back(new_pid);
+        // Change it in Interactions
+        for (auto && interaction : Particles[new_pid].interactions) {
+            //unstable_erase(Interactions[interaction->id])
+        }
     }
 
 

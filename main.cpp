@@ -12,17 +12,18 @@ int main() {
     Xion::System s;
 
     s.addPType("H", 1.0, 1.0, Xion::Charge::zero);
-
-
     for (size_t i = 0; i < 3; ++i) {
         s.addParticle("H");
     }
+    //auto particle = Xion::Particle(s.getParticleByID(1));
+
+
     for (size_t i = 0; i < 3; ++i) {
         std::cout << "particle: " << i << std::endl;
         s.getParticleByID(i)->printPosition();
         std::cout << "interactions: ";
-        for (auto &&i: s.getParticleByID(i)->interactions) {
-            std::cout << i->id << " ";
+        for (auto &&interaction: s.getParticleByID(i)->interactions) {
+            std::cout << interaction->id << " ";
         }
         std::cout << std::endl;
     }
@@ -35,8 +36,8 @@ int main() {
         if (s.getParticleByID(i) != nullptr) {
             s.getParticleByID(i)->printPosition();
             std::cout << "interactions: ";
-            for (auto &&i: s.getParticleByID(i)->interactions) {
-                std::cout << i->id << " ";
+            for (auto && interaction: s.getParticleByID(i)->interactions) {
+                std::cout << interaction->id << " ";
             }
             std::cout << std::endl;
         }

@@ -38,4 +38,10 @@ namespace Xion {
         << " " << coordinates.z
         << std::endl;
     }
+
+    Particle::Particle(Particle &p, int _id) {
+        id = _id;
+        coordinates = p.coordinates;
+        interactions = p.interactions;
+    }
 } // Xion
