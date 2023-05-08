@@ -18,11 +18,11 @@ int main() {
 
     std::map<Xion::PTypeID, int> reaction1;
     reaction1["HA"] = -1;
-    reaction1["H"] = 1;
+    //reaction1["H"] = 1;
     reaction1["A"] = 1;
     s.addReaction(reaction1, 1);
 
-    for (size_t i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < 15; ++i) {
         s.addParticle("H");
         s.addParticle("HA");
         s.addParticle("A");

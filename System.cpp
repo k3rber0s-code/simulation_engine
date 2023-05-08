@@ -260,7 +260,7 @@ namespace Xion {
 
 
         // Energy after delta del
-        double new_energy = energy + energy_delta_del;
+        double new_energy = energy - energy_delta_del;
 
 
 
