@@ -186,5 +186,9 @@ namespace Xion {
         // TODO: chain molecules
     }
 
+    void System::addReaction(std::map<PTypeID, int>& _stoichiometry, int _nu) {
+        Reactions.push_back(Reaction(_stoichiometry, _nu));
+    }
+
 
 } // Xion

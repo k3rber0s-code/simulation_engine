@@ -36,8 +36,18 @@ namespace Xion {
      */
     typedef std::map<PTypeID , Xion::ParticleType> ParticleTypeInfo;
 
+    struct Reaction {
+        std::map<PTypeID, int> stoichiometry;
+        int nu;
+        Reaction(std::map<PTypeID, int>& _stoichiometry, int _nu) {
+            stoichiometry = _stoichiometry;
+            nu = _nu;
+        }
+    };
+
     class System {
     public:
+        void addReaction(std::map<PTypeID, int>&, int);
         void addPType(PTypeID, double, double, Charge);
         void addParticle(PTypeID);
         void deleteParticle(PID, PTypeID);
@@ -49,6 +59,8 @@ namespace Xion {
         Particle* getParticleByID(PID);
         System() : nextPID(0), nextIID(0) {};
     private:
+        // REACTIONS
+        std::vector<Reaction> Reactions;
         // PARTICLES
         ParticleTypeInfo PTypes;
         ParticleMap Particles;
