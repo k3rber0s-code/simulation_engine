@@ -9,18 +9,20 @@
 
 namespace Xion {
     Coordinates::Coordinates() {
-        x = Random::getRandomNumber(0.0, 10.0);
-        y = Random::getRandomNumber(0.0, 10.0);
-        z = Random::getRandomNumber(0.0, 10.0);
+        x = Random::getRandomNumber(0.0, 100.0);
+        y = Random::getRandomNumber(0.0, 100.0);
+        z = Random::getRandomNumber(0.0, 100.0);
     }
 
     Particle::Particle() {
         coordinates = Coordinates();
+        masked = false;
     }
 
     Particle::Particle(int _id) {
         coordinates = Coordinates();
         id = _id;
+        masked = false;
     }
 
     ChainedParticle::ChainedParticle() {
@@ -43,5 +45,6 @@ namespace Xion {
         id = _id;
         coordinates = p.coordinates;
         interactions = p.interactions;
+        masked = p.masked;
     }
 } // Xion

@@ -73,6 +73,12 @@ build CMakeFiles/engine.dir/System.cpp.o: CXX_COMPILER__engine_Debug /home/ema/s
   OBJECT_DIR = CMakeFiles/engine.dir
   OBJECT_FILE_DIR = CMakeFiles/engine.dir
 
+build CMakeFiles/engine.dir/Writer.cpp.o: CXX_COMPILER__engine_Debug /home/ema/software_projects/engine/Writer.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles/engine.dir/Writer.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always -std=gnu++20
+  OBJECT_DIR = CMakeFiles/engine.dir
+  OBJECT_FILE_DIR = CMakeFiles/engine.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target engine
@@ -81,7 +87,7 @@ build CMakeFiles/engine.dir/System.cpp.o: CXX_COMPILER__engine_Debug /home/ema/s
 #############################################
 # Link the executable engine
 
-build engine: CXX_EXECUTABLE_LINKER__engine_Debug CMakeFiles/engine.dir/main.cpp.o CMakeFiles/engine.dir/Particle.cpp.o CMakeFiles/engine.dir/Interaction.cpp.o CMakeFiles/engine.dir/System.cpp.o
+build engine: CXX_EXECUTABLE_LINKER__engine_Debug CMakeFiles/engine.dir/main.cpp.o CMakeFiles/engine.dir/Particle.cpp.o CMakeFiles/engine.dir/Interaction.cpp.o CMakeFiles/engine.dir/System.cpp.o CMakeFiles/engine.dir/Writer.cpp.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/engine.dir
   POST_BUILD = :

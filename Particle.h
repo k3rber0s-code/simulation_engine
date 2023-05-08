@@ -34,6 +34,8 @@ namespace Xion {
     public:
         int id;
         Coordinates coordinates;
+        bool masked;
+
         void printPosition();
         void addInteraction(std::shared_ptr<Interaction> i);
         Particle();

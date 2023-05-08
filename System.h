@@ -21,6 +21,7 @@ namespace Xion {
     typedef std::string PTypeID;
     typedef int PID;
     typedef int IID;
+    typedef int RID;
 
     /*
      * ParticleMap: storage of particles accessible by their IDs in O(1)
@@ -36,8 +37,10 @@ namespace Xion {
      */
     typedef std::map<PTypeID , Xion::ParticleType> ParticleTypeInfo;
 
+    typedef std::map<PTypeID, int> StoichiometricCoefficients;
+
     struct Reaction {
-        std::map<PTypeID, int> stoichiometry;
+        StoichiometricCoefficients stoichiometry;
         int nu;
         Reaction(std::map<PTypeID, int>& _stoichiometry, int _nu) {
             stoichiometry = _stoichiometry;
@@ -50,15 +53,23 @@ namespace Xion {
         void addReaction(std::map<PTypeID, int>&, int);
         void addPType(PTypeID, double, double, Charge);
         void addParticle(PTypeID);
+        void addParticle(PTypeID, PID);
         void deleteParticle(PID, PTypeID);
         void changePType(PID, PTypeID, PTypeID);
         void addInteraction(PID, PID, PTypeID&, PTypeID&, InteractionType);
+        void doMonteCarloStep();
         //void deleteInteraction(IID);
 
         PID getRandomParticleID(const PTypeID&);
+        Reaction* getRandomReaction();
+        static int getReactionDirection();
         Particle* getParticleByID(PID);
         System() : nextPID(0), nextIID(0) {};
+
+        friend class Writer;
     private:
+        // PROPERTIES
+        double box_l = 100.0;
         // REACTIONS
         std::vector<Reaction> Reactions;
         // PARTICLES
@@ -77,6 +88,7 @@ namespace Xion {
         int generateIID() { return nextIID++;}
         int nextPID;
         int nextIID;
+
 
 
         double getDistance(const PID &id1, const PID &id2, bool root = false);

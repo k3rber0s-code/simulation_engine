@@ -36,6 +36,16 @@ namespace Xion {
         addInteractions(ptype_id, p_id);
     }
 
+    void System::addParticle(PTypeID ptype_id, PID pid) {
+        double threshold = 15; // TODO: load thresholds for different types of interactions;
+        // Generate id and whole new particle
+        Particles[pid] = Particle(pid);
+        PByType[ptype_id].push_back(pid);
+
+        // Add interactions
+        addInteractions(ptype_id, pid);
+    }
+
     /// Adds all possible interactions for a particle
     /// \param ptype_id Type of the particle
     /// \param p_id ID of the particle
@@ -43,7 +53,8 @@ namespace Xion {
     void System::addInteractions(PTypeID &ptype_id, int p_id, double threshold) {
         for (const auto &[ptype_id2, p_ids]: PByType) {
             for (auto &&p_id2: p_ids) {
-                if (p_id > p_id2) { // Assures that each interaction will be counted only once
+                if (p_id > p_id2 &&
+                    !Particles[p_id2].masked) { // Assures that each interaction will be counted only once
                     auto d = getDistance(p_id, p_id2);
                     if (d < pow(threshold, 2)) {
                         addInteraction(p_id, p_id2, ptype_id, const_cast<PTypeID &>(ptype_id2),
@@ -114,6 +125,7 @@ namespace Xion {
         }
 
     }
+
     /// Function for sampling a random particle of certain type.
     /// \param ptype_id ID of the type of desired particle
     /// \return ID of the particle in ParticlesByType[ptype_id] vector
@@ -136,7 +148,7 @@ namespace Xion {
     /// Deletes all interactions regarding a particle denoted by PID. Used when deleting a particle or changing its type
     /// \param p_id PID of the particle
     void System::deleteInteractions(PID p_id) {
-        auto& i_tbd = Particles[p_id].interactions;
+        auto &i_tbd = Particles[p_id].interactions;
         if (!i_tbd.empty()) {
             for (auto &i: i_tbd) {
                 energy -= i->getPotential();
@@ -157,6 +169,7 @@ namespace Xion {
             }
         }
     }
+
     /// Stores information about a particle type in the system.
     /// \param typeId string ID of the type
     /// \param sigma radius
@@ -186,8 +199,156 @@ namespace Xion {
         // TODO: chain molecules
     }
 
-    void System::addReaction(std::map<PTypeID, int>& _stoichiometry, int _nu) {
+    void System::addReaction(std::map<PTypeID, int> &_stoichiometry, int _nu) {
         Reactions.push_back(Reaction(_stoichiometry, _nu));
+    }
+
+    void System::doMonteCarloStep() {
+        std::cout << "beginning MC step..." << std::endl;
+        // Choose random reaction and its direction
+        auto reaction = getRandomReaction();
+        int reactionDirection = getReactionDirection();
+        // Set reactants and products
+        // Positive coefficient (multiplied by reactionDirection) denotes a product, negative denotes a reactant
+        std::vector<std::string> reactants;
+        std::vector<std::string> products;
+        std::for_each(reaction->stoichiometry.begin(), reaction->stoichiometry.end(),
+                      [&reactants, &products, reactionDirection](const std::pair<PTypeID, int> &it) mutable {
+                          if (it.second * reactionDirection < 0) {
+                              reactants.push_back(it.first);
+                          } else {
+                              products.push_back(it.first);
+                          }
+                      });
+
+        // Create a mask to save changes proposed by next step TODO
+        std::vector<std::pair<PTypeID, PID>> deleted_particles;
+
+        // Choose concrete particles from reactant types
+        for (auto &&r: reactants) {
+            for (int i = 0; i < abs(reaction->stoichiometry[r]); ++i) {
+                PID id = getRandomParticleID(r);
+                auto p = getParticleByID(id);
+                if (p != nullptr) {
+                    deleted_particles.push_back({r, id});
+                    // Mask the particles to be deleted so when we add new, they disregard any possible interactions with them
+                    Particles[id].masked = true;
+                }
+                    // Reactants missing from system
+                else {
+                    std::cout << "Reactant missing: " << r << ". Reaction cannot proceed." << std::endl;
+                    return;
+                }
+            }
+        }
+        std::cout << "deleted particles: ";
+        for (auto &&p: deleted_particles) {
+            std::cout << p.second << " ";
+        }
+        std::cout << std::endl;
+
+        //// PROPOSE NEW STATE
+
+        // Energy delta that will be subtracted when deleting reactants and their interactions from the system
+        double energy_delta_del = 0;
+
+        for (auto &&dp: deleted_particles) {
+            for (auto &&i: Particles[dp.second].interactions) {
+                energy_delta_del += i->getPotential();
+            }
+        }
+
+
+        // Energy after delta del
+        double new_energy = energy + energy_delta_del;
+
+
+
+        // Create new particles de novo or from particle buffer
+        std::vector<std::pair<PTypeID, PID>> added_particles;
+        // Create new particle
+        for (auto &&p: products) {
+            for (int i = 0; i < abs(reaction->stoichiometry[p]); ++i) {
+                PID id = generatePID();
+                added_particles.push_back({p, id});
+                addParticle(p, id);
+            }
+        }
+
+        // Energy delta that will be added when adding products and their interactions to the system
+        double energy_delta_add = 0;
+        for (auto &&ap: added_particles) {
+            for (auto &&i: Particles[ap.second].interactions) {
+                energy_delta_add += i->getPotential();
+            }
+        }
+
+        // Energy after delta add
+        new_energy += energy_delta_add;
+
+        // Nu is the sum of stoichiometric coefficients, needed in computation of acceptance probability
+        double nu = 0;
+        for (auto &&ptype: reactants) {
+            nu += reaction->stoichiometry[ptype];
+        }
+        for (auto &&ptype: products) {
+            nu += reaction->stoichiometry[ptype];
+        }
+
+        //// ACCEPTANCE OF NEW STATE
+        double temperature = 300; // K
+        double xi = 1.0; // extent of reaction, for us it will be always 1
+        if (new_energy > energy) {
+            // beta = 1 / k_B * T
+            double beta = 1 / (temperature / 300);
+            double gamma = 1;
+            // Computed acceptance probability
+            auto p_accept = std::min(1.0,
+                                     pow(pow(box_l, 3), nu * xi)
+                                     * pow(gamma, xi)
+                                     * exp(-beta * (new_energy - energy)));
+            // Random probability taken uniformly from distribution
+            double p_rand = Random::getRandomNumber(0.0, 1.0);
+
+            // Smith-Triska criterion
+            if (p_accept > p_rand) {
+                std::cout << "step accepted: " << "p acc: " << p_accept << " " << "p rand: " << p_rand << std::endl;
+            } else {
+                std::cout << "step declined: " << "p acc: " << p_accept << " " << "p rand: " << p_rand << std::endl;
+                for (auto &&p: added_particles) {
+                    deleteParticle(p.second, p.first);
+                }
+                for (auto &&p: deleted_particles) {
+                    Particles[p.second].masked = false;
+                }
+                return;
+            }
+        }
+        // New energy is lower that old energy, state is automatically accepted
+        else {
+            std::cout << "step accepted" << std::endl;
+        }
+
+        //// DELETE OLD STATE
+
+        // PARTICLES FROM SYSTEM
+        for (auto &&p: deleted_particles) {
+            deleteParticle(p.second, p.first);
+        }
+
+        energy = new_energy;
+    }
+
+    Reaction *System::getRandomReaction() {
+        if (!Reactions.empty()) {
+            int idx = Random::getRandomNumber<int>(0, Reactions.size() - 1);
+            return &Reactions[idx];
+        } else return nullptr;
+    }
+
+    int System::getReactionDirection() {
+        auto p = Random::getRandomNumber(0.0, 1.0);
+        if (p >= 0.5) return 1; else return -1;
     }
 
 
