@@ -203,8 +203,9 @@ namespace Xion {
         Reactions.push_back(Reaction(_stoichiometry, _nu));
     }
 
-    void System::doMonteCarloStep() {
-        std::cout << "beginning MC step..." << std::endl;
+
+    void System::doRxMCStep() {
+        std::cout << "beginning RxMC step..." << std::endl;
         // Choose random reaction and its direction
         auto reaction = getRandomReaction();
         int reactionDirection = getReactionDirection();
@@ -324,7 +325,7 @@ namespace Xion {
                 return;
             }
         }
-        // New energy is lower that old energy, state is automatically accepted
+            // New energy is lower that old energy, state is automatically accepted
         else {
             std::cout << "step accepted" << std::endl;
         }
@@ -349,6 +350,28 @@ namespace Xion {
     int System::getReactionDirection() {
         auto p = Random::getRandomNumber(0.0, 1.0);
         if (p >= 0.5) return 1; else return -1;
+    }
+
+    void System::parseParameters(const data_intake & data) {
+        // Parse reactions
+        const auto [par_reactions, par_particle_types, b, s, d] = data;
+        for (auto &&r: par_reactions) {
+            std::map<Xion::PTypeID, int> reaction;
+            for (const auto &[k, v]: r) {
+                reaction[k] = std::stoi(v);
+            }
+            addReaction(reaction, 1);
+        }
+        // Parse particle types
+        for (auto &&pt: par_particle_types) {
+            auto charge_str = pt.at("charge");
+            Charge c;
+            if (charge_str == "negative") c = Charge::negative;
+            else if (charge_str == "positive") c = Charge::positive;
+            else c = Charge::zero;
+            addPType(pt.at("name"), std::stod(pt.at("sigma")), std::stod(pt.at("epsilon")), c);
+        }
+
     }
 
 

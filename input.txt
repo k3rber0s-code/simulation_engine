@@ -1,0 +1,29 @@
+# SYSTEM
+box_l=100.0
+
+# PARTICLES
+## PT
+name=H
+sigma=1.0
+epsilon=1.0
+charge=positive
+## PT
+name=A
+sigma=1.0
+epsilon=1.0
+charge=negative
+
+## NUMBERS
+H=15
+A=15
+
+
+# REACTIONS
+## R
+H=-1
+A=1
+
+# SIMULATION
+n_steps=10000
+obs=true
+xyz=false

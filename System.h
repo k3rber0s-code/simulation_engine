@@ -9,6 +9,9 @@
 #include "Interaction.h"
 #include "Random.h"
 
+typedef std::map<std::string, std::string> parameters;
+typedef std::tuple<std::vector<parameters>, std::vector<parameters>, parameters,parameters,parameters> data_intake;
+
 #ifndef ENGINE_SYSTEM_H
 #define ENGINE_SYSTEM_H
 
@@ -35,14 +38,15 @@ namespace Xion {
     /*
      * Type definition for fast lookup of information regarding different particle types.
      */
-    typedef std::map<PTypeID , Xion::ParticleType> ParticleTypeInfo;
+    typedef std::map<PTypeID, Xion::ParticleType> ParticleTypeInfo;
 
     typedef std::map<PTypeID, int> StoichiometricCoefficients;
 
     struct Reaction {
         StoichiometricCoefficients stoichiometry;
         int nu;
-        Reaction(std::map<PTypeID, int>& _stoichiometry, int _nu) {
+
+        Reaction(std::map<PTypeID, int> &_stoichiometry, int _nu) {
             stoichiometry = _stoichiometry;
             nu = _nu;
         }
@@ -50,23 +54,25 @@ namespace Xion {
 
     class System {
     public:
-        void addReaction(std::map<PTypeID, int>&, int);
-        void addPType(PTypeID, double, double, Charge);
-        void addParticle(PTypeID);
-        void addParticle(PTypeID, PID);
-        void deleteParticle(PID, PTypeID);
-        void changePType(PID, PTypeID, PTypeID);
-        void addInteraction(PID, PID, PTypeID&, PTypeID&, InteractionType);
-        void doMonteCarloStep();
-        //void deleteInteraction(IID);
+        // Parsing
+        void parseParameters(const data_intake &);
 
-        PID getRandomParticleID(const PTypeID&);
-        Reaction* getRandomReaction();
-        static int getReactionDirection();
-        Particle* getParticleByID(PID);
+        void addReaction(std::map<PTypeID, int> &, int);
+
+        void addPType(PTypeID, double, double, Charge);
+
+        void addParticle(PTypeID);
+
+        void addParticle(PTypeID, PID);
+
+        void deleteParticle(PID, PTypeID);
+
+        void doRxMCStep();
+
         System() : nextPID(0), nextIID(0) {};
 
         friend class Writer;
+
     private:
         // PROPERTIES
         double box_l = 100.0;
@@ -84,18 +90,39 @@ namespace Xion {
         double energy = 0;
 
         // ID HANDLER
-        int generatePID() { return nextPID++;}
-        int generateIID() { return nextIID++;}
+        int generatePID() { return nextPID++; }
+
+        int generateIID() { return nextIID++; }
+
         int nextPID;
         int nextIID;
 
 
+        // METHODS
 
-        double getDistance(const PID &id1, const PID &id2, bool root = false);
+        // Particles
+        void changePType(PID, PTypeID, PTypeID);
+
+        PID getRandomParticleID(const PTypeID &);
+
+        Particle *getParticleByID(PID);
+
+        // Reactions
+        Reaction *getRandomReaction();
+
+        static int getReactionDirection();
+
+        // Interactions
+        void addInteraction(PID, PID, PTypeID &, PTypeID &, InteractionType);
 
         void deleteInteractions(PID p_id);
 
         void addInteractions(PTypeID &ptype_id, PID p_id, double threshold = 15);
+
+        // Utils
+        double getDistance(const PID &id1, const PID &id2, bool root = false);
+
+
     };
 
 } // Xion
