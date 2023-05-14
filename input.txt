@@ -9,8 +9,8 @@ epsilon=1.0
 charge=positive
 ## PT
 name=A
-sigma=1.0
-epsilon=1.0
+sigma=3.0
+epsilon=4.0
 charge=negative
 
 ## NUMBERS
@@ -27,3 +27,4 @@ A=1
 n_steps=10000
 obs=true
 xyz=false
+log=true

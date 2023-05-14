@@ -23,8 +23,6 @@ namespace Xion {
         Interaction(int _id) : id(_id) {};
     protected:
         double potential;
-
-        //virtual void calculatePotentialEnergy(Particle &p1, Particle &p2) = 0;
     };
 
     template<typename... T>
@@ -32,11 +30,7 @@ namespace Xion {
 
     class LennardJonesPotential : public Interaction {
     public:
-        //double cutoff = 2.5;
         void calculatePotentialEnergy(double sigma, double epsilon, double distance) {
-//            auto epsilon = 1.0;  //average(particles[0]->type->epsilon, particles[1].get()->type->epsilon);
-//            auto sigma = 1.0; //pow(particles[0].get()->type->sigma*particles[1].get()->type->sigma, 0.5);
-//            auto distance = 1.0;
             potential = 4 * epsilon * (pow(sigma / distance, 12) - pow(sigma / distance, 6));
         };
 

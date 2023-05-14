@@ -352,9 +352,11 @@ namespace Xion {
         if (p >= 0.5) return 1; else return -1;
     }
 
-    void System::parseParameters(const data_intake & data) {
+    void System::parseParameters(const data_intake &data) {
+        const auto [par_reactions, par_particle_types, par_particle_counts, par_system, par_simulation] = data;
+        // Parse system variables
+        box_l = std::stod(par_system.at("box_l"));
         // Parse reactions
-        const auto [par_reactions, par_particle_types, b, s, d] = data;
         for (auto &&r: par_reactions) {
             std::map<Xion::PTypeID, int> reaction;
             for (const auto &[k, v]: r) {
@@ -371,6 +373,13 @@ namespace Xion {
             else c = Charge::zero;
             addPType(pt.at("name"), std::stod(pt.at("sigma")), std::stod(pt.at("epsilon")), c);
         }
+        // Parse particle numbers
+        for (const auto &[ptype, n]: par_particle_counts) {
+            for (int i = 0; i < std::stoi(n); ++i) {
+                addParticle(ptype, generatePID());
+            }
+        }
+
 
     }
 

@@ -26,12 +26,19 @@ std::vector<std::string> tokenizer(std::string &s, char del) {
 }
 
 int main() {
+
     Xion::Reader r;
     r.readFile("/home/ema/software_projects/engine/input.txt");
 
+    auto data = r.dumpData();
 
+    // Setting up simulation variables
+    int n_steps = std::stoi(std::get<4>(data).at("n_steps"));
+    bool xyz = (std::get<4>(data).at("xyz") == "true") ? true : false;
+    bool obs = (std::get<4>(data).at("obs") == "true") ? true : false;
+    bool log = (std::get<4>(data).at("log") == "true") ? true : false;
     Xion::System s;
-    s.parseParameters(r.dumpData());
+    s.parseParameters(data);
     std::cout << std::endl;
 //
 //    s.addPType("H", 1.0, 1.0, Xion::Charge::positive);
@@ -56,12 +63,12 @@ int main() {
 //        s.addParticle("A");
 //    }
 //
-//    Xion::Writer w;
-//    w.writeParticlePositions(s);
-//    for (int i = 0; i < 10000; ++i) {
-//        s.doRxMCStep();
-//        w.writeObs(s);
-//        w.writeParticlePositions(s, true);
-//    }
+    Xion::Writer w;
+    w.writeParticlePositions(s);
+    for (int i = 0; i < n_steps; ++i) {
+        s.doRxMCStep();
+        if (obs) w.writeObs(s);
+        if (xyz) w.writeParticlePositions(s, true);
+    }
     return 0;
 }
