@@ -161,11 +161,23 @@ namespace Xion {
                                                [&i](const std::shared_ptr<Interaction> &obj) {
                                                    return obj->id == i->id;
                                                });
-                        Particles[p_id2].interactions.erase(it);
+                        if (it != Particles[p_id2].interactions.end()) {
+                            if (it->use_count() == 1) {
+                                Particles[p_id2].interactions.erase(it);
+                            } else {
+                                it->reset();
+                            }
+                            unstable_erase(Particles[p_id2].interactions, it);
+                        }
                     }
                 }
                 // Delete info from interaction map
-                Interactions.erase(Interactions.find(i->id));
+                auto id = Interactions.find(i->id);
+                // Safeguard if deleting multiple particles and this is an interaction regargind both of them
+                // - one of them could have already deleted this info in the map
+                if (id != Interactions.end()) {
+                    Interactions.erase(Interactions.find(i->id));
+                }
             }
         }
     }
@@ -237,6 +249,7 @@ namespace Xion {
                 }
                     // Reactants missing from system
                 else {
+                    current_state = "Reactant missing: " + r + ". Reaction cannot proceed.";
                     std::cout << "Reactant missing: " << r << ". Reaction cannot proceed." << std::endl;
                     return;
                 }
@@ -272,7 +285,7 @@ namespace Xion {
             for (int i = 0; i < abs(reaction->stoichiometry[p]); ++i) {
                 PID id = generatePID();
                 added_particles.push_back({p, id});
-                addParticle(p, id);
+                addParticle(p, id, box_l);
             }
         }
 
@@ -313,8 +326,10 @@ namespace Xion {
 
             // Smith-Triska criterion
             if (p_accept > p_rand) {
+                current_state = "step accepted: p acc: " + std::to_string(p_accept) + " p rand: " + std::to_string(p_rand);
                 std::cout << "step accepted: " << "p acc: " << p_accept << " " << "p rand: " << p_rand << std::endl;
             } else {
+                current_state = "step declined: p acc: " + std::to_string(p_accept) + " p rand: " + std::to_string(p_rand);
                 std::cout << "step declined: " << "p acc: " << p_accept << " " << "p rand: " << p_rand << std::endl;
                 for (auto &&p: added_particles) {
                     deleteParticle(p.second, p.first);
@@ -327,7 +342,8 @@ namespace Xion {
         }
             // New energy is lower that old energy, state is automatically accepted
         else {
-            std::cout << "step accepted" << std::endl;
+            current_state = "step automatically accepted";
+            std::cout << "step automatically accepted" << std::endl;
         }
 
         //// DELETE OLD STATE
@@ -376,10 +392,21 @@ namespace Xion {
         // Parse particle numbers
         for (const auto &[ptype, n]: par_particle_counts) {
             for (int i = 0; i < std::stoi(n); ++i) {
-                addParticle(ptype, generatePID());
+                addParticle(ptype, generatePID(), box_l);
             }
         }
 
+
+    }
+
+    void System::addParticle(PTypeID ptype_id, PID pid, double ceil) {
+
+        // Generate id and whole new particle
+        Particles[pid] = Particle(pid, ceil);
+        PByType[ptype_id].push_back(pid);
+
+        // Add interactions
+        addInteractions(ptype_id, pid);
 
     }
 

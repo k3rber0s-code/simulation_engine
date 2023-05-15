@@ -21,6 +21,7 @@ namespace Xion {
 
         double getPotential() const { return potential; };
         Interaction(int _id) : id(_id) {};
+        Interaction(){};
     protected:
         double potential;
     };

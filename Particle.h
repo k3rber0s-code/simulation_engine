@@ -13,6 +13,7 @@ namespace Xion {
         double y;
         double z;
         Coordinates();
+        explicit Coordinates(double ceil);
     };
 
     enum class Charge {
@@ -41,6 +42,7 @@ namespace Xion {
         Particle();
         Particle(Particle&, int);
         explicit Particle(int _id);
+        explicit Particle(int _id, double ceil);
         Interactions interactions;
     protected:
         friend class System;

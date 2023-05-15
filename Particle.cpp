@@ -13,6 +13,11 @@ namespace Xion {
         y = Random::getRandomNumber(0.0, 100.0);
         z = Random::getRandomNumber(0.0, 100.0);
     }
+    Coordinates::Coordinates(double ceil) {
+        x = Random::getRandomNumber(0.0, ceil);
+        y = Random::getRandomNumber(0.0, ceil);
+        z = Random::getRandomNumber(0.0, ceil);
+    }
 
     Particle::Particle() {
         coordinates = Coordinates();
@@ -46,5 +51,11 @@ namespace Xion {
         coordinates = p.coordinates;
         interactions = p.interactions;
         masked = p.masked;
+    }
+
+    Particle::Particle(int _id, double ceil) {
+        coordinates = Coordinates(ceil);
+        id = _id;
+        masked = false;
     }
 } // Xion

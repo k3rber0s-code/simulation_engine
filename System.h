@@ -64,18 +64,21 @@ namespace Xion {
         void addParticle(PTypeID);
 
         void addParticle(PTypeID, PID);
+        void addParticle(PTypeID, PID, double);
 
         void deleteParticle(PID, PTypeID);
 
         void doRxMCStep();
 
-        System() : nextPID(0), nextIID(0) {};
+        //System() : nextPID(0), nextIID(0) {};
+        explicit System(double _box_l) : nextPID(0), nextIID(0), box_l(_box_l), current_state("Initial state")  {};
 
         friend class Writer;
 
     private:
         // PROPERTIES
         double box_l = 100.0;
+        std::string current_state;
         // REACTIONS
         std::vector<Reaction> Reactions;
         // PARTICLES
