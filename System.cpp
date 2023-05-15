@@ -60,7 +60,7 @@ namespace Xion {
     /// \param ptype_id Type of the particle
     /// \param p_id ID of the particle
     /// \param threshold cutoff threshold for where potentials are no longer computed
-    void System::addInteractions(PTypeID &ptype_id, int p_id, double threshold) {
+    void System::addInteractions(const PTypeID &ptype_id, const PID& p_id, double threshold) {
         for (const auto &[ptype_id2, p_ids]: PByType) {
             for (auto &&p_id2: p_ids) {
                 if (p_id > p_id2 &&
@@ -82,7 +82,7 @@ namespace Xion {
     /// Fetches a particle by id.
     /// \param p_id ID of the particle
     /// \return pointer on the particle or nullptr of not found
-    Particle *System::getParticleByID(PID p_id) {
+    Particle *System::getParticleByID(const PID& p_id) {
         auto it = Particles.find(p_id);
         if (it != Particles.end()) {
             return &it->second;
@@ -110,7 +110,7 @@ namespace Xion {
     /// \param ptype1 type of first particle
     /// \param ptype2 type of second particle
     /// \param itype type of interaction to be created
-    void System::addInteraction(PID p1, PID p2, PTypeID &ptype1, PTypeID &ptype2, InteractionType itype) {
+    void System::addInteraction(const PID &p1, const PID &p2, const PTypeID &ptype1, const PTypeID &ptype2, InteractionType itype) {
         if (itype == InteractionType::lennard_jones) {
             //std::cout << "adding lennard jones interaction. id: ";
             // Compute pairwise parameters
@@ -157,7 +157,7 @@ namespace Xion {
 
     /// Deletes all interactions regarding a particle denoted by PID. Used when deleting a particle or changing its type
     /// \param p_id PID of the particle
-    void System::deleteInteractions(PID p_id) {
+    void System::deleteInteractions(const PID& p_id) {
         auto &i_tbd = Particles[p_id].interactions;
         if (!i_tbd.empty()) {
             for (auto &i: i_tbd) {
@@ -206,7 +206,7 @@ namespace Xion {
     /// \param pid
     /// \param typeId_old  old type
     /// \param typeId_new  new type
-    void System::changePType(PID pid, PTypeID typeId_old, PTypeID typeId_new) {
+    void System::changePType(const PID& pid, const PTypeID& typeId_old, const PTypeID& typeId_new) {
         // Generate new ID
         PID new_pid = generatePID();
         // Remove old interactions

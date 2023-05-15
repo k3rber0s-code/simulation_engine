@@ -24,7 +24,6 @@ namespace Xion {
     typedef std::string PTypeID;
     typedef int PID;
     typedef int IID;
-    typedef int RID;
 
     /*
      * ParticleMap: storage of particles accessible by their IDs in O(1)
@@ -56,18 +55,6 @@ namespace Xion {
     public:
         // Parsing
         void parseParameters(const data_intake &);
-
-        void addReaction(std::map<PTypeID, int> &, int);
-
-        void addPType(PTypeID, double, double, Charge);
-
-        void addParticle(PTypeID);
-
-        void addParticle(PTypeID, PID);
-        void addParticle(PTypeID, PID, double);
-
-        void deleteParticle(PID, PTypeID);
-
         void doRxMCStep();
 
         //System() : nextPID(0), nextIID(0) {};
@@ -103,25 +90,32 @@ namespace Xion {
 
 
         // METHODS
-
         // Particles
-        void changePType(PID, PTypeID, PTypeID);
+        void addPType(PTypeID, double, double, Charge);
+
+        void addParticle(PTypeID);
+        void addParticle(PTypeID, PID);
+        void addParticle(PTypeID, PID, double);
+
+        void deleteParticle(PID, PTypeID);
+
+        void changePType(const PID&, const PTypeID&, const PTypeID&);
 
         PID getRandomParticleID(const PTypeID &);
 
-        Particle *getParticleByID(PID);
+        Particle *getParticleByID(const PID&);
 
         // Reactions
-        Reaction *getRandomReaction();
+        void addReaction(std::map<PTypeID, int> &, int);
 
+        Reaction *getRandomReaction();
         static int getReactionDirection();
 
         // Interactions
-        void addInteraction(PID, PID, PTypeID &, PTypeID &, InteractionType);
+        void addInteractions(const PTypeID &ptype_id, const PID &p_id, double threshold = lj_threshold);
+        void addInteraction(const PID&, const PID&, const PTypeID &, const PTypeID &, InteractionType);
 
-        void deleteInteractions(PID p_id);
-
-        void addInteractions(PTypeID &ptype_id, PID p_id, double threshold = lj_threshold);
+        void deleteInteractions(const PID& p_id);
 
         // Utils
         double getDistance(const PID &id1, const PID &id2, bool root = false);

@@ -34,13 +34,13 @@ namespace Xion {
 
     class LennardJonesPotential : public Interaction {
     public:
-        void calculatePotentialEnergy(double sigma, double epsilon, double distance) {
-            potential = 4 * epsilon * (pow(sigma / distance, 12) - pow(sigma / distance, 6));
-        };
-
         LennardJonesPotential() = default;
         LennardJonesPotential(int _id, double sigma, double epsilon, double distance) : Interaction(_id) {
             calculatePotentialEnergy(sigma, epsilon, distance);
+        };
+    private:
+        void calculatePotentialEnergy(double sigma, double epsilon, double distance) {
+            potential = 4 * epsilon * (pow(sigma / distance, 12) - pow(sigma / distance, 6));
         };
     };
 

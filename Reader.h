@@ -18,12 +18,11 @@ namespace Xion {
 
     class Reader {
     public:
-        bool readFile(std::string path);
+        bool readFile(const std::string& path);
         data_dump dumpData();
     private:
         // INPUT STREAM
         std::ifstream input;
-
 
         // STORAGE OF PARAMETERS
         std::vector<parameters> par_reactions;

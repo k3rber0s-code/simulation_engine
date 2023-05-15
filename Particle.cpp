@@ -50,7 +50,7 @@ namespace Xion {
 
     /// Adds interaction to particle interactions container
     /// \param i
-    void Particle::addInteraction(std::shared_ptr<Interaction> i) {
+    void Particle::addInteraction(const std::shared_ptr<Interaction>& i) {
         interactions.push_back(i);
     }
 

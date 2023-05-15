@@ -35,16 +35,17 @@ namespace Xion {
     public:
         int id;
         Coordinates coordinates;
-        bool masked;
 
-        void printPosition();
-        void addInteraction(std::shared_ptr<Interaction> i);
         Particle();
         Particle(Particle&, int);
         explicit Particle(int _id);
         explicit Particle(int _id, double ceil);
-        Interactions interactions;
     protected:
+        Interactions interactions;
+        bool masked;
+
+        void printPosition();
+        void addInteraction(const std::shared_ptr<Interaction>& i);
         friend class System;
     };
 

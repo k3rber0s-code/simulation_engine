@@ -15,7 +15,7 @@ namespace Xion {
     }
 
     /// String split util
-    std::vector<std::string> tokenizer(std::string &s, char del) {
+    std::vector<std::string> tokenizer(const std::string &s, char del) {
         std::vector<std::string> tokens;
         std::stringstream ss(s);
         std::string word;
@@ -28,7 +28,7 @@ namespace Xion {
 
     /// Reads all the data from an input file
     /// \param path Path of the input file
-    bool Reader::readFile(std::string path) {
+    bool Reader::readFile(const std::string& path) {
 
         input.open(path);
         std::string line;
