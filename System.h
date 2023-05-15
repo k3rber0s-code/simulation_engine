@@ -79,6 +79,7 @@ namespace Xion {
         // PROPERTIES
         double box_l = 100.0;
         std::string current_state;
+        constexpr const static double lj_threshold = 45;
         // REACTIONS
         std::vector<Reaction> Reactions;
         // PARTICLES
@@ -120,7 +121,7 @@ namespace Xion {
 
         void deleteInteractions(PID p_id);
 
-        void addInteractions(PTypeID &ptype_id, PID p_id, double threshold = 15);
+        void addInteractions(PTypeID &ptype_id, PID p_id, double threshold = lj_threshold);
 
         // Utils
         double getDistance(const PID &id1, const PID &id2, bool root = false);

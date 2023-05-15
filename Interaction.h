@@ -11,10 +11,13 @@
 
 namespace Xion {
     enum class InteractionType {
-        lennard_jones,
-        electrostatic
+        lennard_jones
     };
 
+    /*
+     * Interaction class serves as a model of relationship between particles. Different types of interactions are able
+     * to compute its exact potential and store the value.
+     */
     class Interaction {
     public:
         int id;

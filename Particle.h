@@ -47,14 +47,6 @@ namespace Xion {
     protected:
         friend class System;
     };
-    class ChainedParticle : Particle {
-    public:
-        ChainedParticle();
-        using Particle::addInteraction;
-    private:
-        Particle* previous;
-        Particle* next;
-    };
 
 } // Xion
 

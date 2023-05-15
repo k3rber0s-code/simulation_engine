@@ -13,6 +13,9 @@
 
 namespace Xion {
 
+    /*
+     * This is a helper class containing a method to generate random value of multiple numeric types, such as int, double etc.
+     */
     class Random {
     public:
         template<typename Numeric, typename Generator = std::mt19937>

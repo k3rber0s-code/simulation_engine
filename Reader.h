@@ -18,8 +18,7 @@ namespace Xion {
 
     class Reader {
     public:
-
-        void readFile(std::string path);
+        bool readFile(std::string path);
         data_dump dumpData();
     private:
         // INPUT STREAM
@@ -38,6 +37,7 @@ namespace Xion {
         std::string active_flag = "default";
         const std::vector<std::string> headings = {"# SYSTEM", "# PARTICLES", "## PT", "## NUMBERS", "# REACTIONS", "## R", "# SIMULATION"};
 
+        // Utils for data extractions
         void save_data();
     };
 

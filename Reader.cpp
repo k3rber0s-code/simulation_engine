@@ -9,10 +9,12 @@
 namespace Xion {
 
 
+    /// Hashing function as a helper for switch statement for a string
     constexpr unsigned int hash(std::string s, int off = 0) {
         return !s[off] ? 5381 : (hash(s, off + 1) * 33) ^ s[off];
     }
 
+    /// String split util
     std::vector<std::string> tokenizer(std::string &s, char del) {
         std::vector<std::string> tokens;
         std::stringstream ss(s);
@@ -24,7 +26,9 @@ namespace Xion {
         return tokens;
     }
 
-    void Reader::readFile(std::string path) {
+    /// Reads all the data from an input file
+    /// \param path Path of the input file
+    bool Reader::readFile(std::string path) {
 
         input.open(path);
         std::string line;
@@ -47,12 +51,15 @@ namespace Xion {
             }
 
             save_data();
+            return true;
         }
         else {
             std::cout << "Couldn't open file\n";
+            return false;
         }
     }
 
+    /// Save map 'curr' as a different variable based on current flag (loaded data type)
     void Reader::save_data() {
         if (!curr.empty()) {
             switch (hash(active_flag)) {
@@ -83,6 +90,8 @@ namespace Xion {
         }
     }
 
+    /// Get all loaded data from the reader
+    /// \return Tuple of {par_reactions, par_particle_types, par_particle_counts, par_system, par_simulation}
     data_dump Reader::dumpData() {
         return {par_reactions, par_particle_types, par_particle_counts, par_system, par_simulation};
     }

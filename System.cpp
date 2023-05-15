@@ -26,7 +26,6 @@ namespace Xion {
     /// Adds a particle of certain type to the system.
     /// \param ptype_id type of the particle
     void System::addParticle(PTypeID ptype_id) {
-        double threshold = 15; // TODO: load thresholds for different types of interactions;
         // Generate id and whole new particle
         int p_id = generatePID();
         Particles[p_id] = Particle(p_id);
@@ -36,8 +35,8 @@ namespace Xion {
         addInteractions(ptype_id, p_id);
     }
 
+    /// Adds a particle with specified ptype, pid
     void System::addParticle(PTypeID ptype_id, PID pid) {
-        double threshold = 15; // TODO: load thresholds for different types of interactions;
         // Generate id and whole new particle
         Particles[pid] = Particle(pid);
         PByType[ptype_id].push_back(pid);
@@ -46,6 +45,17 @@ namespace Xion {
         addInteractions(ptype_id, pid);
     }
 
+    /// Adds a particle with specified ptype, pid and ceil for coordinates
+    void System::addParticle(PTypeID ptype_id, PID pid, double ceil) {
+
+        // Generate id and whole new particle
+        Particles[pid] = Particle(pid, ceil);
+        PByType[ptype_id].push_back(pid);
+
+        // Add interactions
+        addInteractions(ptype_id, pid);
+
+    }
     /// Adds all possible interactions for a particle
     /// \param ptype_id Type of the particle
     /// \param p_id ID of the particle
@@ -59,10 +69,10 @@ namespace Xion {
                     if (d < pow(threshold, 2)) {
                         addInteraction(p_id, p_id2, ptype_id, const_cast<PTypeID &>(ptype_id2),
                                        InteractionType::lennard_jones); //TODO: cast
-                        std::cout << "distance: " << d << ": adding interaction between " << p_id << " " << p_id2
-                                  << std::endl;
+                        //std::cout << "distance: " << d << ": adding interaction between " << p_id << " " << p_id2
+                        // << std::endl;
                     } else {
-                        std::cout << "distance: " << d << " too far." << std::endl;
+                        // std::cout << "distance: " << d << " too far." << std::endl;
                     }
                 }
             }
@@ -102,7 +112,7 @@ namespace Xion {
     /// \param itype type of interaction to be created
     void System::addInteraction(PID p1, PID p2, PTypeID &ptype1, PTypeID &ptype2, InteractionType itype) {
         if (itype == InteractionType::lennard_jones) {
-            std::cout << "adding lennard jones interaction. id: ";
+            //std::cout << "adding lennard jones interaction. id: ";
             // Compute pairwise parameters
             auto sigma = pow(PTypes[ptype1].sigma * PTypes[ptype2].sigma, 0.5);
             auto epsilon = average(PTypes[ptype1].epsilon, PTypes[ptype2].epsilon);
@@ -110,7 +120,7 @@ namespace Xion {
 
             // Create the interaction and add it to particles
             IID i = generateIID();
-            std::cout << i << std::endl;
+            //std::cout << i << std::endl;
             auto i_shared = std::make_shared<LennardJonesPotential>(i, sigma, epsilon, sqrt(distance));
             Particles[p1].addInteraction(i_shared);
             Particles[p2].addInteraction(i_shared);
@@ -119,9 +129,9 @@ namespace Xion {
             Interactions[i] = {p1, p2};
 
             // Update the system energy
-            std::cout << "energy before: " << energy << " ";
+           // std::cout << "energy before: " << energy << " ";
             energy += i_shared->getPotential();
-            std::cout << "energy after: " << energy << std::endl;
+            //std::cout << "energy after: " << energy << std::endl;
         }
 
     }
@@ -192,6 +202,10 @@ namespace Xion {
         PTypes[typeId] = ptype;
     }
 
+    /// Changes the type of the particle and generates new id
+    /// \param pid
+    /// \param typeId_old  old type
+    /// \param typeId_new  new type
     void System::changePType(PID pid, PTypeID typeId_old, PTypeID typeId_new) {
         // Generate new ID
         PID new_pid = generatePID();
@@ -211,11 +225,15 @@ namespace Xion {
         // TODO: chain molecules
     }
 
+    /// Adds reaction to the system
+    /// \param _stoichiometry stoichiometric coefficients
+    /// \param _nu nu of the reaction
     void System::addReaction(std::map<PTypeID, int> &_stoichiometry, int _nu) {
         Reactions.push_back(Reaction(_stoichiometry, _nu));
     }
 
 
+    /// Executes one RxMC step
     void System::doRxMCStep() {
         std::cout << "beginning RxMC step..." << std::endl;
         // Choose random reaction and its direction
@@ -255,11 +273,11 @@ namespace Xion {
                 }
             }
         }
-        std::cout << "deleted particles: ";
-        for (auto &&p: deleted_particles) {
-            std::cout << p.second << " ";
-        }
-        std::cout << std::endl;
+//        std::cout << "deleted particles: ";
+//        for (auto &&p: deleted_particles) {
+//            std::cout << p.second << " ";
+//        }
+//        std::cout << std::endl;
 
         //// PROPOSE NEW STATE
 
@@ -356,6 +374,8 @@ namespace Xion {
         energy = new_energy;
     }
 
+    /// Returns a pointer to a random available reaction
+    /// \return
     Reaction *System::getRandomReaction() {
         if (!Reactions.empty()) {
             int idx = Random::getRandomNumber<int>(0, Reactions.size() - 1);
@@ -363,11 +383,14 @@ namespace Xion {
         } else return nullptr;
     }
 
+    /// Returns random number (reaction direction) from {-1, 1}
     int System::getReactionDirection() {
         auto p = Random::getRandomNumber(0.0, 1.0);
         if (p >= 0.5) return 1; else return -1;
     }
 
+    /// Parses parameters from data dump of the reader
+    /// \param data
     void System::parseParameters(const data_intake &data) {
         const auto [par_reactions, par_particle_types, par_particle_counts, par_system, par_simulation] = data;
         // Parse system variables
@@ -399,16 +422,7 @@ namespace Xion {
 
     }
 
-    void System::addParticle(PTypeID ptype_id, PID pid, double ceil) {
 
-        // Generate id and whole new particle
-        Particles[pid] = Particle(pid, ceil);
-        PByType[ptype_id].push_back(pid);
-
-        // Add interactions
-        addInteractions(ptype_id, pid);
-
-    }
 
 
 } // Xion

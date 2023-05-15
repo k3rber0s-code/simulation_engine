@@ -2,17 +2,26 @@
 #include <memory>
 #include <map>
 #include <vector>
+#include <stdio.h>
 #include "Particle.h"
 #include "Interaction.h"
 #include "System.h"
 #include "Writer.h"
 #include "Reader.h"
 
-int main() {
-
+int main(int argc, char *argv[]) {
+    std::string input_path;
+    if (argc != 2) {
+        std::cout << "Invalid number of arguments, input file path missing.";
+        return 0;
+    }
+    else {
+        input_path = argv[1];
+    }
     // Setting up the reader and reading the input file
     Xion::Reader r;
-    r.readFile("../input.txt");
+    bool file_good = r.readFile(input_path);
+    if (!file_good) return 0;
 
     auto data = r.dumpData();
 
