@@ -12,7 +12,7 @@ namespace Xion {
     /// \param it
     /// \return
     template<class T>
-    bool unstable_erase(
+    void unstable_erase(
             typename std::vector<T> &container,
             typename std::vector<T>::iterator it
     ) {
