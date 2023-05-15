@@ -16,7 +16,6 @@ with protein function, therefore it is incredibly useful to determine the struct
 The goal is to provide a specialized tool for monitoring ionization effects in proteins. Many tools available have more
 functionalities, but ionization is not implemented well or it is too approximate. Therefore we want to come up with
 easier way to simulate this type of interaction on protein chains.
-*EDIT: right now, no chained molecules are supported, the simulations runs for non-bonded atoms.*
 
 # 2 Description
 
@@ -47,16 +46,16 @@ The main entities of the tool are:
     - analyzes overall physical properties of the system (energies, pressure, temperature etc.)
     - stores info about particles themselves, particles in interactions, available reactions and other useful constants
 
-For simulation purposes, we will use Monte Carlo methods to generate next possible state and use *Smith-Triska* (
-reactions) and *Metropolis* (movement) criterion to accept or reject it.
+For simulation purposes, we will use Monte Carlo methods to generate next possible state and use *Smith-Triska* 
+reactions criterion to accept it of reject it.
 
 ## 2.2 I/O
 
 ### Input
 
-EDIT: Right now, only a simple script in main.cpp is supported, the Reader class is not implemented yet.
-The program reads a .txt file that stores properties about the system, possible reactions, number of particles of
-certain type (the type needs to be specified as well) and initial interactions. The input file looks like this:
+The program reads a .txt file (path added as a command line argument) that stores properties about the system, possible
+reactions, number of particles of certain type (the type needs to be specified as well) and initial interactions. The
+input file looks like this:
 
 ```
 # SYSTEM
@@ -90,6 +89,7 @@ obs=true
 xyz=false
 log=true
 ```
+
 ### Output
 
 Three types of output files are generated: **{name}.xyz**, which records the positions of all particles in one step. The
@@ -103,25 +103,22 @@ format is:
 %
 ...
 ```
+where the id of the particle can be specified not to be printed out.
 
 The second output file is **{name}.obs**. It contains system properties that are being recorded over the course of the
 simulation.
-*EDIT: right now, it contains the particle counts and total energy of the system*
+By default, it is set to contain the particle counts and total energy of the system*
 
 The third output file is **{name}.log**. This is a basic log file that stores the properties of the system, datetime of
-the simulation and possible errors.
+the simulation and info about all simulation steps and their acceptance/decline.
 
-## 2.2 Model
+# 2 Requirements
 
---- UML DIAGRAM ---
+## 2.1 Software
 
-# 3 Requirements
+The program is written in C++ 20.
 
-## 3.1 Software
-
-The program will be written in C++.
-
-## 3.2 Libraries
+## 2.2 Libraries
 
 No additional libraries need to be installed.
 
