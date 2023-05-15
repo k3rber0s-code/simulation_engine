@@ -45,7 +45,7 @@ namespace Xion {
         bool masked;
 
         void printPosition();
-        void addInteraction(const std::shared_ptr<Interaction>& i);
+        void addInteraction(std::shared_ptr<Interaction> i);
         friend class System;
     };
 

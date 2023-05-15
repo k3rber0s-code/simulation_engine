@@ -27,7 +27,8 @@ B=25
 # REACTIONS
 ## R
 B=-2
-A=2
+A=1
+H=1
 ## R
 H=1
 

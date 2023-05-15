@@ -3,6 +3,7 @@
 //
 
 #include "System.h"
+#include <cassert>
 
 namespace Xion {
 
@@ -56,11 +57,12 @@ namespace Xion {
         addInteractions(ptype_id, pid);
 
     }
+
     /// Adds all possible interactions for a particle
     /// \param ptype_id Type of the particle
     /// \param p_id ID of the particle
     /// \param threshold cutoff threshold for where potentials are no longer computed
-    void System::addInteractions(const PTypeID &ptype_id, const PID& p_id, double threshold) {
+    void System::addInteractions(const PTypeID &ptype_id, const PID &p_id, double threshold) {
         for (const auto &[ptype_id2, p_ids]: PByType) {
             for (auto &&p_id2: p_ids) {
                 if (p_id > p_id2 &&
@@ -82,7 +84,7 @@ namespace Xion {
     /// Fetches a particle by id.
     /// \param p_id ID of the particle
     /// \return pointer on the particle or nullptr of not found
-    Particle *System::getParticleByID(const PID& p_id) {
+    Particle *System::getParticleByID(const PID &p_id) {
         auto it = Particles.find(p_id);
         if (it != Particles.end()) {
             return &it->second;
@@ -110,7 +112,8 @@ namespace Xion {
     /// \param ptype1 type of first particle
     /// \param ptype2 type of second particle
     /// \param itype type of interaction to be created
-    void System::addInteraction(const PID &p1, const PID &p2, const PTypeID &ptype1, const PTypeID &ptype2, InteractionType itype) {
+    void System::addInteraction(const PID &p1, const PID &p2, const PTypeID &ptype1, const PTypeID &ptype2,
+                                InteractionType itype) {
         if (itype == InteractionType::lennard_jones) {
             //std::cout << "adding lennard jones interaction. id: ";
             // Compute pairwise parameters
@@ -129,7 +132,7 @@ namespace Xion {
             Interactions[i] = {p1, p2};
 
             // Update the system energy
-           // std::cout << "energy before: " << energy << " ";
+            // std::cout << "energy before: " << energy << " ";
             energy += i_shared->getPotential();
             //std::cout << "energy after: " << energy << std::endl;
         }
@@ -151,13 +154,15 @@ namespace Xion {
         deleteInteractions(p_id);
         // ERASE THE PARTICLE ITSELF
         PByType[p_type].erase(std::find(PByType[p_type].begin(), PByType[p_type].end(), p_id));
-        Particles.erase(Particles.find(p_id));
+        auto erased_id = Particles.find(p_id);
+        assert(erased_id != Particles.end());
+        Particles.erase(erased_id);
 
     }
 
     /// Deletes all interactions regarding a particle denoted by PID. Used when deleting a particle or changing its type
     /// \param p_id PID of the particle
-    void System::deleteInteractions(const PID& p_id) {
+    void System::deleteInteractions(const PID &p_id) {
         auto &i_tbd = Particles[p_id].interactions;
         if (!i_tbd.empty()) {
             for (auto &i: i_tbd) {
@@ -182,11 +187,11 @@ namespace Xion {
                     }
                 }
                 // Delete info from interaction map
-                auto id = Interactions.find(i->id);
+                auto it_interaction = Interactions.find(i->id);
                 // Safeguard if deleting multiple particles and this is an interaction regarding both of them
                 // - one of them could have already deleted this info in the map
-                if (id != Interactions.end()) {
-                    Interactions.erase(Interactions.find(i->id));
+                if (it_interaction != Interactions.end()) {
+                    Interactions.erase(it_interaction);
                 }
             }
         }
@@ -206,7 +211,7 @@ namespace Xion {
     /// \param pid
     /// \param typeId_old  old type
     /// \param typeId_new  new type
-    void System::changePType(const PID& pid, const PTypeID& typeId_old, const PTypeID& typeId_new) {
+    void System::changePType(const PID &pid, const PTypeID &typeId_old, const PTypeID &typeId_new) {
         // Generate new ID
         PID new_pid = generatePID();
         // Remove old interactions
@@ -241,29 +246,44 @@ namespace Xion {
         int reactionDirection = getReactionDirection();
         // Set reactants and products
         // Positive coefficient (multiplied by reactionDirection) denotes a product, negative denotes a reactant
+
         std::vector<std::string> reactants;
         std::vector<std::string> products;
-        std::for_each(reaction->stoichiometry.begin(), reaction->stoichiometry.end(),
-                      [&reactants, &products, reactionDirection](const std::pair<PTypeID, int> &it) mutable {
-                          if (it.second * reactionDirection < 0) {
-                              reactants.push_back(it.first);
-                          } else {
-                              products.push_back(it.first);
-                          }
-                      });
-
+        {
+            std::for_each(reaction->stoichiometry.begin(), reaction->stoichiometry.end(),
+                          [&reactants, &products, reactionDirection](const std::pair<PTypeID, int> &it) mutable {
+                              if (it.second * reactionDirection < 0) {
+                                  reactants.push_back(it.first);
+                              } else {
+                                  products.push_back(it.first);
+                              }
+                          });
+        }
         // Create a mask to save changes proposed by next step
         std::vector<std::pair<PTypeID, PID>> deleted_particles;
 
         // Choose specific particles from reactant types
         for (auto &&r: reactants) {
-            for (int i = 0; i < abs(reaction->stoichiometry[r]); ++i) {
-                PID id = getRandomParticleID(r);
-                auto p = getParticleByID(id);
+            std::vector<PID> random_pids = {};
+            // Check if we have enough particles of this type in the system
+            if (PByType[r].size() < abs(reaction->stoichiometry[r])) {
+                current_state = "Reactant missing: " + r + ". Reaction cannot proceed.";
+                std::cout << "Reactant missing: " << r << ". Reaction cannot proceed." << std::endl;
+                return;
+            } else {
+                while (random_pids.size() != abs(reaction->stoichiometry[r])) {
+                    PID id = getRandomParticleID(r);
+                    if (std::find(random_pids.begin(), random_pids.end(), id) == random_pids.end()) {
+                        random_pids.push_back(id);
+                    }
+                }
+            }
+            for (auto &&pid: random_pids) {
+                auto p = getParticleByID(pid);
                 if (p != nullptr) {
-                    deleted_particles.push_back({r, id});
+                    deleted_particles.push_back({r, pid});
                     // Mask the particles to be deleted so when we add new, they disregard any possible interactions with them
-                    Particles[id].masked = true;
+                    Particles[pid].masked = true;
                 }
                     // Reactants missing from system
                 else {
@@ -272,6 +292,7 @@ namespace Xion {
                     return;
                 }
             }
+
         }
 //        std::cout << "deleted particles: ";
 //        for (auto &&p: deleted_particles) {
@@ -344,10 +365,12 @@ namespace Xion {
 
             // Smith-Triska criterion
             if (p_accept > p_rand) {
-                current_state = "step accepted: p acc: " + std::to_string(p_accept) + " p rand: " + std::to_string(p_rand);
+                current_state =
+                        "step accepted: p acc: " + std::to_string(p_accept) + " p rand: " + std::to_string(p_rand);
                 std::cout << "step accepted: " << "p acc: " << p_accept << " " << "p rand: " << p_rand << std::endl;
             } else {
-                current_state = "step declined: p acc: " + std::to_string(p_accept) + " p rand: " + std::to_string(p_rand);
+                current_state =
+                        "step declined: p acc: " + std::to_string(p_accept) + " p rand: " + std::to_string(p_rand);
                 std::cout << "step declined: " << "p acc: " << p_accept << " " << "p rand: " << p_rand << std::endl;
                 for (auto &&p: added_particles) {
                     deleteParticle(p.second, p.first);
@@ -421,8 +444,6 @@ namespace Xion {
 
 
     }
-
-
 
 
 } // Xion
