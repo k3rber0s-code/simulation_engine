@@ -68,7 +68,7 @@ namespace Xion {
                     auto d = getDistance(p_id, p_id2);
                     if (d < pow(threshold, 2)) {
                         addInteraction(p_id, p_id2, ptype_id, const_cast<PTypeID &>(ptype_id2),
-                                       InteractionType::lennard_jones); //TODO: cast
+                                       InteractionType::lennard_jones);
                         //std::cout << "distance: " << d << ": adding interaction between " << p_id << " " << p_id2
                         // << std::endl;
                     } else {
@@ -183,7 +183,7 @@ namespace Xion {
                 }
                 // Delete info from interaction map
                 auto id = Interactions.find(i->id);
-                // Safeguard if deleting multiple particles and this is an interaction regargind both of them
+                // Safeguard if deleting multiple particles and this is an interaction regarding both of them
                 // - one of them could have already deleted this info in the map
                 if (id != Interactions.end()) {
                     Interactions.erase(Interactions.find(i->id));
@@ -222,7 +222,7 @@ namespace Xion {
         PByType[typeId_new].push_back(new_pid);
         // Generate new interactions
         addInteractions(typeId_new, new_pid);
-        // TODO: chain molecules
+
     }
 
     /// Adds reaction to the system
@@ -252,10 +252,10 @@ namespace Xion {
                           }
                       });
 
-        // Create a mask to save changes proposed by next step TODO
+        // Create a mask to save changes proposed by next step
         std::vector<std::pair<PTypeID, PID>> deleted_particles;
 
-        // Choose concrete particles from reactant types
+        // Choose specific particles from reactant types
         for (auto &&r: reactants) {
             for (int i = 0; i < abs(reaction->stoichiometry[r]); ++i) {
                 PID id = getRandomParticleID(r);

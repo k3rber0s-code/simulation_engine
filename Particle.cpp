@@ -20,7 +20,7 @@ namespace Xion {
         z = Random::getRandomNumber(0.0, ceil);
     }
 
-    /// Particles with no type and id
+    /// Particles with no type and idF
     Particle::Particle() {
         coordinates = Coordinates();
         masked = false;
