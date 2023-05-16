@@ -349,17 +349,16 @@ namespace Xion {
         }
 
         //// ACCEPTANCE OF NEW STATE
-        double temperature = 300; // K
-        double xi = 1.0; // extent of reaction, for us it will be always 1
+        double xi = 1.0; // extent of reaction, for us, it will be always 1
         if (new_energy > energy) {
             // beta = 1 / k_B * T
             double beta = 1 / (temperature / 300);
-            double gamma = 1;
+            double gamma = pow(10, -pK_A + (A_3_to_dm_3 - N_A_exp)) * 1/N_A;
             // Computed acceptance probability
-            auto p_accept = std::min(1.0,
-                                     pow(pow(box_l, 3), nu * xi)
+            auto p_accept = pow(pow(box_l, 3), nu * xi)
                                      * pow(gamma, xi)
-                                     * exp(-beta * (new_energy - energy)));
+                                     * exp(-beta * (new_energy - energy));
+            p_accept = std::min(1.0, p_accept);
             // Random probability taken uniformly from distribution
             double p_rand = Random::getRandomNumber(0.0, 1.0);
 

@@ -65,8 +65,16 @@ namespace Xion {
     private:
         // PROPERTIES
         double box_l = 100.0;
-        std::string current_state;
+        double temperature = 300.0; // K
+        double pK_A = 6.04; // dis constant
+
+        // Constants
+        constexpr const static int A_3_to_dm_3 = 27;
+        constexpr const static int N_A_exp = 23;
+        constexpr const static double N_A = 6.02214076;
         constexpr const static double lj_threshold = 45;
+
+        std::string current_state;
         // REACTIONS
         std::vector<Reaction> Reactions;
         // PARTICLES

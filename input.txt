@@ -1,5 +1,5 @@
 # SYSTEM
-box_l=90.0
+box_l=60.0
 
 # PARTICLES
 ## PT
@@ -13,7 +13,7 @@ sigma=3.0
 epsilon=4.0
 charge=negative
 ## PT
-name=B
+name=AH
 sigma=2.0
 epsilon=1.5
 charge=zero
@@ -21,12 +21,12 @@ charge=zero
 ## NUMBERS
 H=25
 A=25
-B=25
+AH=25
 
 
 # REACTIONS
 ## R
-B=-2
+AH=-2
 A=1
 H=1
 ## R
