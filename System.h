@@ -8,6 +8,7 @@
 #include "Particle.h"
 #include "Interaction.h"
 #include "Random.h"
+#include "Reader.h"
 
 typedef std::map<std::string, std::string> parameters;
 typedef std::tuple<std::vector<parameters>, std::vector<parameters>, parameters,parameters,parameters> data_intake;
@@ -54,7 +55,7 @@ namespace Xion {
     class System {
     public:
         // Parsing
-        void parseParameters(const data_intake &);
+        void parseParameters(const SimulationParameters &);
         void doRxMCStep();
 
         //System() : nextPID(0), nextIID(0) {};
@@ -66,7 +67,7 @@ namespace Xion {
         // PROPERTIES
         double box_l = 100.0;
         double temperature = 300.0; // K
-        double pK_A = 6.04; // dis constant
+        double pK_A = 7.04; // dis constant
 
         // Constants
         constexpr const static int A_3_to_dm_3 = 27;

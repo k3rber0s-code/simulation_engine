@@ -342,10 +342,10 @@ namespace Xion {
         // Nu is the sum of stoichiometric coefficients, needed in computation of acceptance probability
         double nu = 0;
         for (auto &&ptype: reactants) {
-            nu += reaction->stoichiometry[ptype];
+            nu += reaction->stoichiometry[ptype] * reactionDirection;
         }
         for (auto &&ptype: products) {
-            nu += reaction->stoichiometry[ptype];
+            nu += reaction->stoichiometry[ptype] * reactionDirection;
         }
 
         //// ACCEPTANCE OF NEW STATE
@@ -355,9 +355,11 @@ namespace Xion {
             double beta = 1 / (temperature / 300);
             double gamma = pow(10, -pK_A + (A_3_to_dm_3 - N_A_exp)) * 1/N_A;
             // Computed acceptance probability
-            auto p_accept = pow(pow(box_l, 3), nu * xi)
+            auto volume_change = pow(pow(box_l, 3), nu * xi);
+            auto boltzmann = exp(-beta * (new_energy - energy));
+            auto p_accept = volume_change
                                      * pow(gamma, xi)
-                                     * exp(-beta * (new_energy - energy));
+                                     * boltzmann;
             p_accept = std::min(1.0, p_accept);
             // Random probability taken uniformly from distribution
             double p_rand = Random::getRandomNumber(0.0, 1.0);
@@ -413,12 +415,11 @@ namespace Xion {
 
     /// Parses parameters from data dump of the reader
     /// \param data
-    void System::parseParameters(const data_intake &data) {
-        const auto [par_reactions, par_particle_types, par_particle_counts, par_system, par_simulation] = data;
+    void System::parseParameters(const SimulationParameters &sp) {
         // Parse system variables
-        box_l = std::stod(par_system.at("box_l"));
+        box_l = std::stod(sp.par_system.at("box_l"));
         // Parse reactions
-        for (auto &&r: par_reactions) {
+        for (auto &&r: sp.par_reactions) {
             std::map<Xion::PTypeID, int> reaction;
             for (const auto &[k, v]: r) {
                 reaction[k] = std::stoi(v);
@@ -426,7 +427,7 @@ namespace Xion {
             addReaction(reaction, 1);
         }
         // Parse particle types
-        for (auto &&pt: par_particle_types) {
+        for (auto &&pt: sp.par_particle_types) {
             auto charge_str = pt.at("charge");
             Charge c;
             if (charge_str == "negative") c = Charge::negative;
@@ -435,8 +436,9 @@ namespace Xion {
             addPType(pt.at("name"), std::stod(pt.at("sigma")), std::stod(pt.at("epsilon")), c);
         }
         // Parse particle numbers
-        for (const auto &[ptype, n]: par_particle_counts) {
-            for (int i = 0; i < std::stoi(n); ++i) {
+        for (const auto &[ptype, n]: sp.par_particle_counts) {
+            auto threshold = std::stoi(n);
+            for (int i = 0; i < threshold; ++i) {
                 addParticle(ptype, generatePID(), box_l);
             }
         }

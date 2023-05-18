@@ -1,0 +1,3 @@
+/home/ema/software_projects/engine/CMakeFiles/engine.dir
+/home/ema/software_projects/engine/CMakeFiles/edit_cache.dir
+/home/ema/software_projects/engine/CMakeFiles/rebuild_cache.dir

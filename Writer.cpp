@@ -58,23 +58,22 @@ namespace Xion {
 
     /// Writes all the parameters specified in the input file to the log stream
     /// \param data Data from the input file
-    void Writer::writeSimulationParameters(const data_intake &data) {
-        const auto [par_reactions, par_particle_types, par_particle_counts, par_system, par_simulation] = data;
+    void Writer::writeSimulationParameters(const SimulationParameters &sp) {
 
         writeHeading("# SYSTEM");
-        for (const auto &[k, v]: par_system) {
+        for (const auto &[k, v]: sp.par_system) {
             writeKVP(k, v);
         }
         writeLog();
 
         writeHeading("# SIMULATION");
-        for (const auto &[k, v]: par_simulation) {
+        for (const auto &[k, v]: sp.par_simulation) {
             writeKVP(k, v);
         }
         writeLog();
 
         writeHeading("# PARTICLES");
-        for (auto &&pt: par_particle_types) {
+        for (auto &&pt: sp.par_particle_types) {
             writeHeading("## PT");
             for (const auto &[k, v]: pt) {
                 writeKVP(k, v);
@@ -83,13 +82,13 @@ namespace Xion {
         writeLog();
 
         writeHeading("# COUNTS");
-        for (const auto &[k, v]: par_particle_counts) {
+        for (const auto &[k, v]: sp.par_particle_counts) {
             writeKVP(k, v);
         }
         writeLog();
 
         writeHeading("# REACTIONS");
-        for (auto &&r: par_reactions) {
+        for (auto &&r: sp.par_reactions) {
             writeHeading("## R");
             for (const auto &[k, v]: r) {
                 writeKVP(k, v);

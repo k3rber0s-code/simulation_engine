@@ -28,7 +28,7 @@ namespace Xion {
         // Methods for writing different types of log things
         void writeLog(const std::string& s = "");
         void writeDateTime(bool local=true);
-        void writeSimulationParameters(const data_intake &);
+        void writeSimulationParameters(const SimulationParameters &);
         void writeSystemState(System& s);
 
         Writer() : obs("xion.obs"), xyz("xion.xyz"), log("xion.log") {

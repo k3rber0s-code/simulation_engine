@@ -12,24 +12,33 @@
 #include <algorithm>
 
 typedef std::map<std::string, std::string> parameters;
-typedef std::tuple<std::vector<parameters>, std::vector<parameters>, parameters,parameters,parameters> data_dump;
 
 namespace Xion {
 
-    class Reader {
-    public:
-        bool readFile(const std::string& path);
-        data_dump dumpData();
-    private:
-        // INPUT STREAM
-        std::ifstream input;
-
-        // STORAGE OF PARAMETERS
+    struct SimulationParameters {
         std::vector<parameters> par_reactions;
         std::vector<parameters> par_particle_types;
         parameters par_particle_counts;
         parameters par_system;
         parameters par_simulation;
+    };
+
+
+    class Reader {
+    public:
+        bool readFile(const std::string& path);
+        SimulationParameters& getParameters();
+    private:
+        // INPUT STREAM
+        std::ifstream input;
+
+        // STORAGE OF PARAMETERS
+        SimulationParameters simulationParameters;
+//        std::vector<parameters> par_reactions;
+//        std::vector<parameters> par_particle_types;
+//        parameters par_particle_counts;
+//        parameters par_system;
+//        parameters par_simulation;
 
         // TEMPORARY FLAG AND MAP FOR EXTRACTING PARAMETERS
         parameters curr = {};

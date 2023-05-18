@@ -29,9 +29,9 @@ namespace Xion {
     /// Reads all the data from an input file
     /// \param path Path of the input file
     bool Reader::readFile(const std::string& path) {
-
         input.open(path);
         std::string line;
+
 
         if (input.is_open()) {
 
@@ -64,23 +64,23 @@ namespace Xion {
         if (!curr.empty()) {
             switch (hash(active_flag)) {
                 case hash("# SYSTEM"): {
-                    par_system = curr;
+                    simulationParameters.par_system = curr;
                     break;
                 }
                 case hash("## PT"):
-                    par_particle_types.push_back(curr);
+                    simulationParameters.par_particle_types.push_back(curr);
                     break;
 
                 case hash("## NUMBERS"):
-                    par_particle_counts = curr;
+                    simulationParameters.par_particle_counts = curr;
                     break;
 
                 case hash("# SIMULATION"):
-                    par_simulation = curr;
+                    simulationParameters.par_simulation = curr;
                     break;
 
                 case hash("## R"):
-                    par_reactions.push_back(curr);
+                    simulationParameters.par_reactions.push_back(curr);
                     break;
                 default:
                     std::cout << "Error: unknown heading" << std::endl;
@@ -90,10 +90,8 @@ namespace Xion {
         }
     }
 
-    /// Get all loaded data from the reader
-    /// \return Tuple of {par_reactions, par_particle_types, par_particle_counts, par_system, par_simulation}
-    data_dump Reader::dumpData() {
-        return {par_reactions, par_particle_types, par_particle_counts, par_system, par_simulation};
+    SimulationParameters &Reader::getParameters() {
+        return simulationParameters;
     }
 
 

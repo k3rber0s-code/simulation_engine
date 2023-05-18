@@ -23,16 +23,16 @@ int main(int argc, char *argv[]) {
     bool file_good = r.readFile(input_path);
     if (!file_good) return 0;
 
-    auto data = r.dumpData();
+    auto data = r.getParameters();
 
     // Setting up simulation variables
-    int n_steps = std::stoi(std::get<4>(data).at("n_steps"));
-    bool xyz = (std::get<4>(data).at("xyz") == "true") ? true : false;
-    bool obs = (std::get<4>(data).at("obs") == "true") ? true : false;
-    bool log = (std::get<4>(data).at("log") == "true") ? true : false;
+    int n_steps = std::stoi(data.par_simulation["n_steps"]);
+    bool xyz = (data.par_simulation["xyz"] == "true");
+    bool obs = (data.par_simulation["obs"] == "true");
+    bool log = (data.par_simulation["log"] == "true");
 
     // Creating system of particles
-    double box_l = std::stod(std::get<3>(data).at("box_l"));
+    double box_l = std::stod(data.par_system["box_l"]);
     Xion::System s(box_l);
     s.parseParameters(data);
     std::cout << std::endl;
