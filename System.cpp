@@ -422,6 +422,7 @@ namespace Xion {
         for (auto &&r: sp.par_reactions) {
             std::map<Xion::PTypeID, int> reaction;
             for (const auto &[k, v]: r) {
+                assert(k.size() == 1);
                 reaction[k[0]] = std::stoi(v);
             }
             addReaction(reaction, 1);
@@ -433,6 +434,8 @@ namespace Xion {
             if (charge_str == "negative") c = Charge::negative;
             else if (charge_str == "positive") c = Charge::positive;
             else c = Charge::zero;
+
+            assert(pt.at("name").size() == 1);
             addPType(pt.at("name")[0], std::stod(pt.at("sigma")), std::stod(pt.at("epsilon")), c);
         }
         // Parse particle numbers
