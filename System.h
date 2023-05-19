@@ -22,7 +22,7 @@ namespace Xion {
      * PID: ID of specific particle
      * IID: ID of specific interaction
      */
-    typedef std::string PTypeID;
+    typedef char PTypeID;
     typedef int PID;
     typedef int IID;
 

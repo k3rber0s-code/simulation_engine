@@ -23,7 +23,7 @@ namespace Xion {
     };
 
     struct ParticleType {
-        std::string name;
+        char name;
         double sigma;
         double epsilon;
         Charge charge;

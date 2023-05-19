@@ -247,8 +247,8 @@ namespace Xion {
         // Set reactants and products
         // Positive coefficient (multiplied by reactionDirection) denotes a product, negative denotes a reactant
 
-        std::vector<std::string> reactants;
-        std::vector<std::string> products;
+        std::vector<char> reactants;
+        std::vector<char> products;
         {
             std::for_each(reaction->stoichiometry.begin(), reaction->stoichiometry.end(),
                           [&reactants, &products, reactionDirection](const std::pair<PTypeID, int> &it) mutable {
@@ -267,7 +267,7 @@ namespace Xion {
             std::vector<PID> random_pids = {};
             // Check if we have enough particles of this type in the system
             if (PByType[r].size() < abs(reaction->stoichiometry[r])) {
-                current_state = "Reactant missing: " + r + ". Reaction cannot proceed.";
+                current_state = "Reactant missing: " + std::to_string(r) + ". Reaction cannot proceed.";
                 std::cout << "Reactant missing: " << r << ". Reaction cannot proceed." << std::endl;
                 return;
             } else {
@@ -287,7 +287,7 @@ namespace Xion {
                 }
                     // Reactants missing from system
                 else {
-                    current_state = "Reactant missing: " + r + ". Reaction cannot proceed.";
+                    current_state = "Reactant missing: " + std::to_string(r) + ". Reaction cannot proceed.";
                     std::cout << "Reactant missing: " << r << ". Reaction cannot proceed." << std::endl;
                     return;
                 }
@@ -422,7 +422,7 @@ namespace Xion {
         for (auto &&r: sp.par_reactions) {
             std::map<Xion::PTypeID, int> reaction;
             for (const auto &[k, v]: r) {
-                reaction[k] = std::stoi(v);
+                reaction[k[0]] = std::stoi(v);
             }
             addReaction(reaction, 1);
         }
@@ -433,13 +433,13 @@ namespace Xion {
             if (charge_str == "negative") c = Charge::negative;
             else if (charge_str == "positive") c = Charge::positive;
             else c = Charge::zero;
-            addPType(pt.at("name"), std::stod(pt.at("sigma")), std::stod(pt.at("epsilon")), c);
+            addPType(pt.at("name")[0], std::stod(pt.at("sigma")), std::stod(pt.at("epsilon")), c);
         }
         // Parse particle numbers
         for (const auto &[ptype, n]: sp.par_particle_counts) {
             auto threshold = std::stoi(n);
             for (int i = 0; i < threshold; ++i) {
-                addParticle(ptype, generatePID(), box_l);
+                addParticle(ptype[0], generatePID(), box_l);
             }
         }
 
