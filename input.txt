@@ -1,7 +1,11 @@
+% This is a comment line
+
 # SYSTEM
-box_l=100.0
+box_l=30.0
 
 # PARTICLES
+% Particle types
+% lowercase letter means bonded hydrogen, e.g. a = AH
 ## PT
 name=H
 sigma=1.0
@@ -19,9 +23,9 @@ epsilon=1.5
 charge=zero
 
 ## NUMBERS
-H=100
-A=100
-a=100
+H=10
+A=10
+a=10
 
 
 # REACTIONS

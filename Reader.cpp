@@ -38,6 +38,7 @@ namespace Xion {
             while (input) {
                 std::getline(input, line);
                 if (line.empty()) continue;
+                if (line[0] == '%') continue;
 
                 if (std::find(headings.begin(), headings.end(), std::string(line)) != headings.end()) {
                     save_data();
